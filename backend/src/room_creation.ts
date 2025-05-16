@@ -14,7 +14,7 @@ export function setupRoomCreation(io: Server) {
       const roomCode = generateRoomCode();
 
       const result = await pool.query(
-        'INSERT INTO rooms (code, created_at) VALUES ($1, NOW()) RETURNING id', [roomCode]
+        'INSERT INTO rooms (code, created_at, expires_at) VALUES ($1, NOW(), NOW() + INTERVAL \'1 hour\') RETURNING id', [roomCode]
       );
       const roomId = result.rows[0].id;
 
