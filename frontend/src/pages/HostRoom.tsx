@@ -7,8 +7,14 @@ import { socket } from '../components/socket';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+interface User {
+    id: string;
+    username: string;
+}
+
 function HostRoom() {
     const [roomCode, setRoomCode] = useState("");
+    const [userList, setUserList] = useState<User[]>([]);
     const { id } = useParams();
 
     useEffect(() => {
@@ -16,8 +22,22 @@ function HostRoom() {
             const response = await fetch(`http://localhost:5000/api/rooms/${id}`);
             const data = await response.json();
             setRoomCode(data.roomCode);
+
+            socket.emit('join-room', {
+                roomCode: data.roomCode,
+                username: 'Host',
+                isHost: true,
+            });
         };
         fetchRoomCode();
+
+        socket.on('room-users', (users: User[]) => {
+            setUserList(users);
+        })
+
+        return () => {
+            socket.off('room-users');
+        };
     }, [id]);
 
     return (
@@ -32,6 +52,17 @@ function HostRoom() {
                         {roomCode}
                     </div>
                 </div>
+                {/* Connected Users */}
+                {userList.length > 0 && (
+                    <div className="mt-8 bg-white shadow-md rounded-xl p-6 max-w-md w-full">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center">Connected Users</h2>
+                        <ul className="text-gray-600 space-y-1">
+                            {userList.map(user => (
+                                <li key={user.id}>• {user.username}</li>
+                            ))}
+                        </ul>
+                    </div>
+                )}
             </div>
             <Footer />
         </>

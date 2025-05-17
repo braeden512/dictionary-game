@@ -3,10 +3,13 @@
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { useState } from 'react';
+import { socket } from '../components/socket';
+import { useNavigate } from 'react-router-dom';
 
 function JoinRoom() {
     const [roomCode, setRoomCode] = useState('');
     const [username, setUsername] = useState('');
+    const navigate = useNavigate();
 
 
     const handleSubmit =  async (event: React.FormEvent) => {
@@ -27,7 +30,14 @@ function JoinRoom() {
             return;
         }
         
-        // connect user to room socket and return id (so we can reroute to correct url)
+        // connect user to room socket
+        socket.emit('join-room', { roomCode, username });
+
+        // wait for response
+        socket.once('room-joined', ({ userId }) => {
+            // navigate to the room
+            navigate(`/room/${roomCode}/${userId}`)
+        });
     }
 
     return (

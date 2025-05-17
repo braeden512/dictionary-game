@@ -1,13 +1,16 @@
 // this is the user room page
 
-import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import { useParams } from 'react-router-dom';
+import { socket } from '../components/socket';
 
 function Room() {
-    
+    const { roomCode, userId } = useParams();
+
     return (
         <>
-            <Navbar />
+            <h1> Room {roomCode}</h1>
+            <p>User ID: {userId}</p>
             <Footer />
         </>
     );

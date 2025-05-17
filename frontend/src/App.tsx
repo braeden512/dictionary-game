@@ -18,7 +18,7 @@ function App() {
           <Route path='/about' element={<About />}></Route>
           <Route path='/create_room/:id' element={<HostRoom />}></Route>
           <Route path='/join_room' element={<JoinRoom />}></Route>
-          <Route path='/room/:id' element={<Room />}></Route>
+          <Route path='/room/:roomCode/:userId' element={<Room />}></Route>
           
 
           {/* if the path is not a real path, reroute to /pagenotfound */}
