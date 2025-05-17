@@ -1,5 +1,4 @@
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
+import Base from '../components/Base';
 import { useEffect } from 'react';
 import { socket } from '../components/socket';
 import { useNavigate } from 'react-router-dom';
@@ -29,8 +28,7 @@ function Home() {
     }, [navigate]);
 
     return (
-        <>
-            <Navbar />
+        <Base>
             <div className="flex justify-center items-center">
                 <div className="bg-gray-200 rounded-2xl shadow-md p-4 m-8 max-w-xl text-center">
                     <button
@@ -46,8 +44,7 @@ function Home() {
                     </button>
                 </div>
             </div>
-            <Footer />
-        </>
+        </Base>
     );
 }
 

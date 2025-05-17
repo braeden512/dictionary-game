@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 
-function Navbar() {
+function Header() {
   return (
     <nav className="bg-white px-8 py-4 flex justify-between items-center border-b border-gray-300 shadow-sm">
       <div className="flex items-center space-x-3">
@@ -20,4 +20,4 @@ function Navbar() {
   );
 }
 
-export default Navbar;
+export default Header;
