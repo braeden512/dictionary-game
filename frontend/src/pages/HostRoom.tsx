@@ -49,6 +49,7 @@ function HostRoom() {
         })
 
         return () => {
+            socket.emit('leave-room');
             socket.off('room-users');
         };
     }, [id]);

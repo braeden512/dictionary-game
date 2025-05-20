@@ -57,6 +57,21 @@ export function setupRoomCreation(io: Server) {
       const nonHostUsers = usersInRooms[roomCode].filter(u => !u.isHost);
       io.to(roomCode).emit('room-users', nonHostUsers);
     });
+    
+    socket.on('leave-room', () => {
+      for (const roomCode in usersInRooms) {
+        const users = usersInRooms[roomCode];
+        const updatedUsers = users.filter(u => u.id !== socket.id);
+        if (updatedUsers.length !== users.length) {
+          usersInRooms[roomCode] = updatedUsers;
+
+          const nonHostUsers = updatedUsers.filter(u => !u.isHost);
+          io.to(roomCode).emit('room-users', nonHostUsers);
+          console.log(`User ${socket.id} disconnected from room ${roomCode}`);
+        }
+      }
+    });
+    // kind of redundant
     socket.on('disconnect', () => {
       for (const roomCode in usersInRooms) {
         const users = usersInRooms[roomCode];
