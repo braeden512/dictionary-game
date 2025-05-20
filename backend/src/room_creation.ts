@@ -42,9 +42,18 @@ export function setupRoomCreation(io: Server) {
       }
       const roomId = result.rows[0].id;
 
+      if (!usersInRooms[roomCode])
+        usersInRooms[roomCode] = [];
+
+      const currentUsers = usersInRooms[roomCode];
+
+      if (isHost && currentUsers.some(user => user.isHost)) {
+        socket.emit('join-error', { message: 'Host already exists for this room.' });
+        return;
+      }
+
       socket.join(roomCode);
       const user: User = { id: socket.id, username, isHost };
-      if (!usersInRooms[roomCode]) usersInRooms[roomCode] = [];
       usersInRooms[roomCode].push(user);
 
       // either store user in db or memory
@@ -58,32 +67,23 @@ export function setupRoomCreation(io: Server) {
       io.to(roomCode).emit('room-users', nonHostUsers);
     });
     
-    socket.on('leave-room', () => {
+    const removeUserFromRooms = () => {
       for (const roomCode in usersInRooms) {
         const users = usersInRooms[roomCode];
         const updatedUsers = users.filter(u => u.id !== socket.id);
+
         if (updatedUsers.length !== users.length) {
           usersInRooms[roomCode] = updatedUsers;
 
           const nonHostUsers = updatedUsers.filter(u => !u.isHost);
           io.to(roomCode).emit('room-users', nonHostUsers);
-          console.log(`User ${socket.id} disconnected from room ${roomCode}`);
-        }
-      }
-    });
-    // kind of redundant
-    socket.on('disconnect', () => {
-      for (const roomCode in usersInRooms) {
-        const users = usersInRooms[roomCode];
-        const updatedUsers = users.filter(u => u.id !== socket.id);
-        if (updatedUsers.length !== users.length) {
-          usersInRooms[roomCode] = updatedUsers;
 
-          const nonHostUsers = updatedUsers.filter(u => !u.isHost);
-          io.to(roomCode).emit('room-users', nonHostUsers);
           console.log(`User ${socket.id} disconnected from room ${roomCode}`);
         }
       }
-    })
+    };
+
+    socket.on('leave-room', removeUserFromRooms);
+    socket.on('disconnect', removeUserFromRooms);
   });
 }

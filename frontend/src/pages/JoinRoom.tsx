@@ -29,6 +29,7 @@ function JoinRoom() {
         
         // connect user to room socket
         socket.emit('join-room', { roomCode, username: nameToUse });
+        localStorage.setItem('username', nameToUse);
 
         // wait for response
         socket.once('room-joined', ({ userId }) => {

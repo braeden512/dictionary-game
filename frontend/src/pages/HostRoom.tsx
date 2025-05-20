@@ -36,6 +36,12 @@ function HostRoom() {
             const data = await response.json();
             setRoomCode(data.roomCode);
 
+            socket.on('join-error', ({ message }) => {
+                console.error(message);
+                alert(message);
+                window.location.href = '/';
+            });
+
             socket.emit('join-room', {
                 roomCode: data.roomCode,
                 username: 'Host',
