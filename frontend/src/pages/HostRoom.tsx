@@ -13,6 +13,7 @@ interface User {
 }
 
 function HostRoom() {
+
     const [roomCode, setRoomCode] = useState("");
     const [userList, setUserList] = useState<User[]>([]);
     const [copied, setCopied] = useState(false);
@@ -70,9 +71,8 @@ function HostRoom() {
     return (
         <Base>
             <div className="flex flex-col items-center justify-center">
-                <h1 className="text-3xl font-bold mb-4 text-gray-800 m-8">Room Created!</h1>
                 
-                <div className="bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md relative">
+                <div className="mt-5 bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md relative">
                     <p className="text-lg text-gray-600 mb-2">Share this room code with others:</p>
                     <div className='relative'>
                         <div className="text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl">
@@ -88,6 +88,11 @@ function HostRoom() {
                             {copied ? <Check size={20} /> : <Copy size={20} />}
                         </button>
                     </div>
+                    <button
+                        className="mt-3 w-full bg-green-600 text-white text-lg font-semibold px-6 py-3 rounded-xl shadow hover:bg-green-500 transition duration-200"
+                    >
+                        Start Game
+                    </button>
                 </div>
                 {/* Connected Users */}
                 {userList.length > 0 && (

@@ -34,6 +34,8 @@ function Room() {
         });
 
         return () => {
+            localStorage.removeItem('username');
+            localStorage.removeItem('userId');
             socket.emit('leave-room');
             socket.off('connect');
             socket.off('join-error');
@@ -44,6 +46,8 @@ function Room() {
         <Base>
             <h1> Room {roomCode}</h1>
             <p>User ID: {userId}</p>
+            {/* you're in! check for your name on the screen */}
+            {/* also do dark mode styling */}
         </Base>
     );
 }

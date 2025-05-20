@@ -30,18 +30,21 @@ function Home() {
     return (
         <Base>
             <div className="flex justify-center items-center">
-                <div className="bg-gray-200 rounded-2xl shadow-md p-4 m-8 max-w-xl text-center">
-                    <button
-                        className="bg-gray-600 text-white px-5 py-2 rounded-xl shadow-sm hover:bg-gray-700 transition duration-200" onClick={createRoom} >
-                        Create Room
-                    </button>
-                    <h1 className='text-2xl font-extrabold tracking-wider text-gray-600 px-6 py-1 rounded-xl'>OR</h1>
-                    <button
-                        className="bg-blue-400 text-white px-7 py-2 rounded-xl shadow-sm hover:bg-blue-500 transition duration-200"
-                        onClick={joinRoom}>
-                        
-                        Join Room
-                    </button>
+                <div className="bg-white rounded-2xl shadow-md p-4 m-8 max-w-xl text-center dark:bg-gray-900">
+                    <div className='mb-2'>
+                        <button
+                            className="bg-gray-400 text-white px-5 py-2 rounded-xl shadow-sm hover:bg-gray-500 transition duration-200 dark:bg-gray-800" onClick={createRoom} >
+                            Create Room
+                        </button>
+                    </div>
+                    <div>
+                        <button
+                            className="bg-blue-600 text-white px-7 py-2 rounded-xl shadow-sm hover:bg-blue-700 transition duration-200 dark:bg-blue-800 dark:hover:bg-blue-700"
+                            onClick={joinRoom}>
+                            
+                            Join Room
+                        </button>
+                    </div>
                 </div>
             </div>
         </Base>

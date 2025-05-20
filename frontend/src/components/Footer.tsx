@@ -1,7 +1,7 @@
 function Footer() {
   return (
-    <footer className="bg-white border-t border-gray-300 text-center py-4 mt-12 shadow-sm">
-      <p className="text-sm text-gray-600">
+    <footer className="border-t border-[#c4c7ca] shadow-md bg-white text-center py-1 mt-12 dark:bg-gray-900 dark:border-gray-700">
+      <p className="text-sm text-[#353738] dark:text-white">
         All rights reserved © 2025 Dictionary Game.
       </p>
     </footer>

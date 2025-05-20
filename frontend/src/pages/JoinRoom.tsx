@@ -33,6 +33,7 @@ function JoinRoom() {
 
         // wait for response
         socket.once('room-joined', ({ userId }) => {
+            localStorage.setItem('userId', userId);
             // navigate to the room
             navigate(`/room/${roomCode}/${userId}`)
         });
