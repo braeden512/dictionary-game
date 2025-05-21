@@ -53,7 +53,7 @@ function JoinRoom() {
                             type="text"
                             placeholder="572834"
                             maxLength={6}
-                            className="w-full text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 py-4 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-blue-400 dark:bg-[#14181e] dark:placeholder-gray-700 dark:text-blue-800 dark:focus:ring-gray-700"
+                            className="w-full text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 py-4 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-gray-300 dark:bg-[#14181e] dark:placeholder-gray-700 dark:text-blue-800 dark:focus:ring-gray-600"
                             required
                         />
                         
@@ -66,7 +66,7 @@ function JoinRoom() {
                             type="text"
                             placeholder="Anonymous"
                             maxLength={10}
-                            className="w-full text-2xl font-bold tracking-wide text-gray-600 bg-gray-200 py-2 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-gray-300 dark:bg-[#14181e] dark:placeholder-gray-700 dark:text-gray-300 dark:focus:ring-gray-700"
+                            className="w-full text-2xl font-bold tracking-wide text-gray-600 bg-blue-100 py-2 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-gray-300 dark:bg-[#14181e] dark:placeholder-gray-700 dark:text-gray-300 dark:focus:ring-gray-600"
                         />
 
                         <button

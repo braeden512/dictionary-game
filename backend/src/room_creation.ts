@@ -1,5 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import pool from './db';
+import { initializeGame, nextRound, acceptWord } from './game_flow';
 
 // function to generate a 6-digit code
 function generateRoomCode(): string {
@@ -14,6 +15,10 @@ interface User {
 }
 
 const usersInRooms: { [roomCode: string]: User[] } = {};
+
+function getUsersInRoom(roomCode: string): User[] {
+  return usersInRooms[roomCode] || [];
+}
 
 // function to handle room creation socket events
 export function setupRoomCreation(io: Server) {
@@ -66,6 +71,24 @@ export function setupRoomCreation(io: Server) {
       const nonHostUsers = usersInRooms[roomCode].filter(u => !u.isHost);
       io.to(roomCode).emit('room-users', nonHostUsers);
     });
+
+    socket.on('start-game', ({ roomCode }) => {
+      const users = getUsersInRoom(roomCode).filter(u => !u.isHost);
+      initializeGame(roomCode, users, io);
+      io.to(roomCode).emit('game-started');
+      console.log(`Game started in room ${roomCode}`);
+    });
+
+    socket.on('next-round', ({ roomCode }) => {
+      nextRound(roomCode, io);
+    })
+
+    socket.on('submit-word', ({ roomCode, word }) => {
+      if (!word || !roomCode)
+        return;
+
+      acceptWord(roomCode, word, io);
+    })
     
     const removeUserFromRooms = () => {
       for (const roomCode in usersInRooms) {
