@@ -72,10 +72,10 @@ function HostRoom() {
         <Base>
             <div className="flex flex-col items-center justify-center">
                 
-                <div className="mt-5 bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md relative">
-                    <p className="text-lg text-gray-600 mb-2">Share this room code with others:</p>
+                <div className="mt-5 bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md relative dark:bg-[#353738] dark:border-[#56585a]">
+                    <p className="text-lg text-gray-600 mb-2 dark:text-white">Share this room code with others:</p>
                     <div className='relative'>
-                        <div className="text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl">
+                        <div className="text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl dark:bg-[#14181e]">
                             {roomCode}
                         </div>
                         <button
@@ -89,15 +89,15 @@ function HostRoom() {
                         </button>
                     </div>
                     <button
-                        className="mt-3 w-full bg-green-600 text-white text-lg font-semibold px-6 py-3 rounded-xl shadow hover:bg-green-500 transition duration-200"
+                        className="mt-3 w-full bg-green-800 text-white text-lg font-semibold px-6 py-3 rounded-xl shadow hover:bg-green-700 transition duration-200"
                     >
                         Start Game
                     </button>
                 </div>
                 {/* Connected Users */}
                 {userList.length > 0 && (
-                    <div className="border border-gray-300 mt-8 bg-white shadow-lg rounded-xl p-6 max-w-3xl w-full">
-                        <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center mb-5">Connected Users</h2>
+                    <div className="border border-gray-300 mt-8 bg-white shadow-lg rounded-xl p-6 max-w-3xl w-full dark:bg-[#353738] dark:border-[#56585a]">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center mb-5 dark:text-white">Connected Users</h2>
                         {/* displayed in colored blocks */}
                         <div className="grid grid-cols-5 gap-2">
                             {userList.map((user, index) => {

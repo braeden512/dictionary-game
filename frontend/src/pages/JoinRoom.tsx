@@ -42,35 +42,36 @@ function JoinRoom() {
     return (
         <Base>
             <div className="flex flex-col items-center justify-center px-4">
-                <h1 className="text-3xl font-bold mb-4 text-gray-800 m-8">Join a Room</h1>
+                <h1 className="text-3xl font-bold mb-4 text-gray-800 m-8 dark:text-white">Join a Room</h1>
                 
                 <form onSubmit={handleSubmit}>
-                    <div className="bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md w-full">
+                    <div className="bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md w-full dark:bg-[#353738] dark:border-[#56585a]">
                 
-                        <p className="text-2xl text-gray-600 mb-2">Enter the room code:</p>
+                        <p className="text-2xl text-gray-600 mb-2 dark:text-white">Enter the room code:</p>
                         <input
                             onChange={(event) => setRoomCode(event.target.value)}
                             type="text"
                             placeholder="572834"
                             maxLength={6}
-                            className="w-full text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 py-4 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-blue-400"
+                            className="w-full text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 py-4 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-blue-400 dark:bg-[#14181e] dark:placeholder-gray-700 dark:text-blue-800 dark:focus:ring-gray-700"
                             required
                         />
+                        
+                        {/* fix soon */}
+                        <hr className='border-t border-gray-300 dark:border-gray-600 my-4'/>
                             
-                        <hr />
-                            
-                        <p className="text-lg text-gray-600 m-2">Create your username:</p>
+                        <p className="text-lg text-gray-600 m-2 dark:text-white">Create your username:</p>
                         <input
                             onChange={(event) => setUsername(event.target.value)}
                             type="text"
                             placeholder="Anonymous"
                             maxLength={10}
-                            className="w-full text-2xl font-bold tracking-wide text-gray-600 bg-gray-200 py-2 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-gray-300"
+                            className="w-full text-2xl font-bold tracking-wide text-gray-600 bg-gray-200 py-2 px-4 mb-6 rounded-xl text-center focus:outline-none focus:ring-1 focus:ring-gray-300 dark:bg-[#14181e] dark:placeholder-gray-700 dark:text-gray-300 dark:focus:ring-gray-700"
                         />
 
                         <button
                             type='submit'
-                            className="w-full bg-blue-600 text-white text-lg font-semibold px-6 py-3 rounded-xl shadow hover:bg-blue-500 transition duration-200"
+                            className="w-full bg-blue-600 text-white text-lg font-semibold px-6 py-3 rounded-xl shadow hover:bg-blue-700 transition duration-200 dark:bg-blue-800"
                         >
                             Join Room
                         </button>
