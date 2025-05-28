@@ -1,0 +1,12 @@
+CREATE USER master WITH PASSWORD 'your_secure_password';
+
+CREATE TABLE IF NOT EXISTS rooms (
+    id SERIAL PRIMARY KEY,
+    code VARCHAR(6) NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+    expires_at TIMESTAMP NOT NULL
+);
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON TABLE rooms TO master;
+
+GRANT USAGE, SELECT, UPDATE ON SEQUENCE rooms_id_seq TO master;
