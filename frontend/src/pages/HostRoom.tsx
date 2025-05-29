@@ -121,7 +121,7 @@ function HostRoom() {
                     <div className="mt-5 bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md relative dark:bg-[#353738] dark:border-[#56585a]">
                         <p className="text-lg text-gray-600 mb-2 dark:text-white">Share this room code with others:</p>
                         <div className='relative'>
-                            <div className="text-4xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl dark:bg-[#14181e]">
+                            <div className="text-5xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl dark:bg-[#14181e]">
                                 {roomCode}
                             </div>
                             <button
