@@ -90,22 +90,44 @@ export function setupRoomCreation(io: Server) {
       acceptWord(roomCode, word, io);
     })
     
-    const removeUserFromRooms = () => {
+    const removeUserFromRooms = async () => {
       for (const roomCode in usersInRooms) {
         const users = usersInRooms[roomCode];
+        const userLeaving = users.find(u => u.id === socket.id);
+
+        // if the user can't be found
+        if (!userLeaving) continue;
+
         const updatedUsers = users.filter(u => u.id !== socket.id);
+        usersInRooms[roomCode] = updatedUsers;
 
-        if (updatedUsers.length !== users.length) {
-          usersInRooms[roomCode] = updatedUsers;
+        console.log(`${userLeaving.username} (${socket.id}) left room ${roomCode}${userLeaving.isHost ? ' [HOST]' : ''}`);
 
+        if (userLeaving.isHost) {
+          // Emit to all users that the room is closed
+          io.to(roomCode).emit('room-closed');
+          console.log(`Host left, closing room ${roomCode}`);
+
+          // Disconnect all sockets in that room
+          const sockets = await io.in(roomCode).fetchSockets();
+          for (const s of sockets) {
+            s.leave(roomCode);
+            s.disconnect(true);
+          }
+
+          // Remove from memory
+          delete usersInRooms[roomCode];
+
+          // Delete room from DB
+          await pool.query('DELETE FROM rooms WHERE code = $1', [roomCode]);
+        }
+        else {
+          // If not host, just update the player list
           const nonHostUsers = updatedUsers.filter(u => !u.isHost);
           io.to(roomCode).emit('room-users', nonHostUsers);
-
-          console.log(`User ${socket.id} disconnected from room ${roomCode}`);
         }
       }
     };
-
     socket.on('leave-room', removeUserFromRooms);
     socket.on('disconnect', removeUserFromRooms);
   });

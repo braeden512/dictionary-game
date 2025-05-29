@@ -15,6 +15,11 @@ function Home() {
     }
 
     useEffect(() => {
+        // ensure the socket reconnects after host disconnects from prior room
+        if (!socket.connected) {
+            socket.connect();
+        }
+
         const handleRoomCreated = (roomId: number) => {
             navigate(`/create_room/${roomId}`);
         };
@@ -29,25 +34,33 @@ function Home() {
 
     return (
         <Base>
-            <div className="flex justify-center items-center">
-                <div className="bg-white rounded-2xl shadow-md p-4 m-8 max-w-xl text-center dark:bg-[#353738]">
-                    <div className='mb-2'>
-                        <button
-                            className="bg-gray-500 text-white px-5 py-2 rounded-xl shadow-sm hover:bg-gray-600 transition duration-200 dark:bg-[#18191a] dark:hover:bg-[#28292a]" onClick={createRoom} >
-                            Create Room
-                        </button>
-                    </div>
-                    <div>
-                        <button
-                            className="bg-blue-600 text-white px-7 py-2 rounded-xl shadow-sm hover:bg-blue-700 transition duration-200 dark:bg-blue-800"
-                            onClick={joinRoom}>
-                            
-                            Join Room
-                        </button>
-                    </div>
+            <div className="flex flex-col sm:flex-row w-full flex-grow">
+                <button
+                className="group flex-1 flex-grow bg-gray-700 text-white text-4xl sm:text-6xl font-semibold flex flex-col items-center justify-center hover:bg-gray-600 transition duration-200 dark:bg-[#18191a] dark:hover:bg-[#28292a] px-4 text-center"
+                onClick={createRoom}
+                >
+                <div>
+                    Create Room
+                    <p className="text-base sm:text-xl font-normal mt-2 text-white/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+                        Create a room and invite your friends.
+                    </p>
                 </div>
+                </button>
+
+                <button
+                className="group flex-1 flex-grow bg-blue-700 text-white text-4xl sm:text-6xl font-semibold flex flex-col items-center justify-center hover:bg-blue-800 transition duration-200 dark:bg-blue-800 dark:hover:bg-blue-900 px-4 text-center"
+                onClick={joinRoom}
+                >
+                <div>
+                    Join Room
+                    <p className="text-base sm:text-xl font-normal mt-2 text-white/80 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-300">
+                        Enter a room code and join a game.
+                    </p>
+                </div>
+                </button>
             </div>
         </Base>
+
     );
 }
 

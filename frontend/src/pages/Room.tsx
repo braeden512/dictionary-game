@@ -4,6 +4,7 @@ import Base from '../components/Base';
 import { useParams } from 'react-router-dom';
 import { socket } from '../components/socket';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Room() {
     const { roomCode, userId } = useParams();
@@ -14,6 +15,7 @@ function Room() {
     const [word, setWord] = useState('');
     const [writingDefinitions, setWritingDefinitions] = useState(false);
     const [currentWord, setCurrentWord] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
 
@@ -36,6 +38,16 @@ function Room() {
         socket.on('game-started', () => {
             setGameStarted(true);
             console.log('[socket] Game has started!');
+        });
+
+        socket.on('room-closed', () => {
+            alert('The host has ended the game.');
+
+            socket.emit('leave-room');
+            socket.removeAllListeners();
+            socket.disconnect();
+
+            navigate(`/`);
         });
 
         const username = localStorage.getItem('username');
@@ -70,8 +82,9 @@ function Room() {
             socket.off('game-started');
             socket.off('assign-word-master');
             socket.off('write-definitions');
+            socket.off('room-closed');
         }
-    }, [roomCode])
+    }, [roomCode, navigate])
 
     return (
         <Base>
