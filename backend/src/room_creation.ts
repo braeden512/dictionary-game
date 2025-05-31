@@ -73,10 +73,20 @@ export function setupRoomCreation(io: Server) {
     });
 
     socket.on('start-game', ({ roomCode }) => {
+      // need to add a catch for when there are 2 or less players in the lobby
       const users = getUsersInRoom(roomCode).filter(u => !u.isHost);
-      initializeGame(roomCode, users, io);
-      io.to(roomCode).emit('game-started');
-      console.log(`Game started in room ${roomCode}`);
+
+      if (users.length >= 3){
+        initializeGame(roomCode, users, io);
+        io.to(roomCode).emit('game-started');
+        console.log(`Game started in room ${roomCode}`);
+      }
+      else {
+        // doesn't ever really execute (but good backup I guess)
+        socket.emit('not-enough-players', {
+          message: 'You need at least three players to start the game.',
+        });
+      }
     });
 
     socket.on('next-round', ({ roomCode }) => {

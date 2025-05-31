@@ -4,7 +4,7 @@
 import Base from '../components/Base';
 import { socket } from '../components/socket';
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Copy, Check } from 'lucide-react';
 
 interface User {
@@ -13,6 +13,7 @@ interface User {
 }
 
 function HostRoom() {
+    const navigate = useNavigate();
 
     const [roomCode, setRoomCode] = useState("");
     const [userList, setUserList] = useState<User[]>([]);
@@ -41,6 +42,7 @@ function HostRoom() {
         "Each player will write a fake definition for a word.",
         "Make sure everyone is ready before starting!",
         "Try not to make your definition too easy!",
+        "You must have three or more players to start the game.",
     ];
 
     useEffect(() => {
@@ -51,15 +53,25 @@ function HostRoom() {
         }, 10000);
 
         const fetchRoomCode = async () => {
-            const response = await fetch(`http://localhost:5000/api/rooms/${id}`);
-            const data = await response.json();
-            setRoomCode(data.roomCode);
+            try {
+                const response = await fetch(`http://localhost:5000/api/rooms/${id}`);
+                // throw an error if the response isn't recieved
+                if (!response.ok) {
+                    throw new Error(`Room not found. Status: ${response.status}`);
+                }
+                const data = await response.json();
+                setRoomCode(data.roomCode);
 
-            socket.emit('join-room', {
-                roomCode: data.roomCode,
-                username: 'Host',
-                isHost: true,
-            });
+                socket.emit('join-room', {
+                    roomCode: data.roomCode,
+                    username: 'Host',
+                    isHost: true,
+                });
+            }
+            catch (err) {
+                console.error('Could not fetch room code, returning to home.', err);
+                navigate(`/`);
+            }
         };
         fetchRoomCode();
 
@@ -73,6 +85,11 @@ function HostRoom() {
             setGameStarted(true);
             console.log('[socket] Game has started!');
         });
+
+        socket.on('not-enough-players', ({message}) => {
+            alert(message);
+            setGameStarted(false);
+        })
 
         socket.on('room-users', (users: User[]) => {
             setUserList(users);
@@ -96,6 +113,7 @@ function HostRoom() {
             socket.off('room-users');
             socket.off('assign-word-master');
             socket.off('submit-word');
+            socket.off('not-enough-players');
             clearInterval(interval);
         };
     }, [id]);
@@ -109,7 +127,6 @@ function HostRoom() {
 
     const startGame = () => {
         socket.emit('start-game', { roomCode });
-        setGameStarted(true);
     };
 
     return (
@@ -136,9 +153,17 @@ function HostRoom() {
                         </div>
                         <button
                             onClick={startGame}
-                            className="mt-3 w-full bg-green-800 text-white text-lg font-semibold px-6 py-3 rounded-xl shadow hover:bg-green-700 transition duration-200"
+                            disabled={userList.length < 3}
+                            className={`mt-3 w-full text-white text-lg font-semibold px-6 py-3 rounded-xl shadow transition duration-200 ${
+                                userList.length < 3
+                                ? 'bg-neutral-400 dark:bg-neutral-800 cursor-not-allowed'
+                                : 'bg-green-800 hover:bg-green-700'
+                            }`}
                         >
-                            Start Game
+                            {/* message for how many players are needed to start the game */}
+                            {userList.length < 3
+                                ? `Need ${3 - userList.length} more player${3 - userList.length === 1 ? '' : 's'}`
+                                : 'Start Game'}
                         </button>
                     </div>
                     <p
