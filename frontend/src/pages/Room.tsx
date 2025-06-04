@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 function Room() {
+    // used for maintaining state of the game
     const { roomCode, userId } = useParams();
     const [gameStarted, setGameStarted] = useState(false);
     const [wordMasterId, setWordMasterId] = useState<string | null>(null);
@@ -15,6 +16,9 @@ function Room() {
     const [word, setWord] = useState('');
     const [writingDefinitions, setWritingDefinitions] = useState(false);
     const [currentWord, setCurrentWord] = useState('');
+    const [definitions, setDefinitions] = useState<string[]>([]);
+    const [showDefinitions, setShowDefinitions] = useState(false);
+    const [definitionText, setDefinitionText] = useState('');
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -48,6 +52,13 @@ function Room() {
             socket.disconnect();
 
             navigate(`/`);
+        });
+
+        socket.on('show-definitions', ({ definitions }) => {
+            console.log('[socket] Showing all definitions:', definitions);
+            const shuffled = definitions.sort(() => Math.random() - 0.5);
+            setDefinitions(shuffled);
+            setShowDefinitions(true);
         });
 
         const username = localStorage.getItem('username');
@@ -107,6 +118,21 @@ function Room() {
             // if the game has started
             ) : (
                  <div className="flex flex-col items-center justify-center mt-6">
+                    {showDefinitions && (
+                        <div className="mt-6 bg-white dark:bg-[#353738] rounded-xl p-6 shadow-md w-full max-w-xl text-center">
+                            <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4">
+                                Guess the correct definition for: {currentWord}
+                            </h2>
+                            <ul className="space-y-4">
+                                {definitions.map((def, index) => (
+                                    <li key={index} className="bg-gray-200 dark:bg-[#18191a] dark:text-white p-4 rounded-md">
+                                        {def}
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
+
                     {/* if the user is the word master */}
                     {isWordMaster ? (
                         // if the word hasn't been submitted
@@ -148,14 +174,31 @@ function Room() {
                                         className="w-full p-3 rounded bg-gray-200 dark:bg-[#18191a] dark:text-white"
                                         placeholder="Enter your definition..."
                                         rows={3}
-                                    ></textarea>
+                                        value={definitionText}
+                                        onChange={(e) => setDefinitionText(e.target.value)}
+                                    />
 
-                                    <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
+                                    <button
+                                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                                        onClick={() => {
+                                            if (roomCode && definitionText.trim()) {
+                                                socket.emit("submit-definition", {
+                                                    roomCode,
+                                                    definition: definitionText.trim(),
+                                                    playerId: socket.id,
+                                                });
+                                                console.log("[socket] Submitted definition:", definitionText);
+                                                setDefinitionText('');
+                                                setWritingDefinitions(false);
+                                            }
+                                        }}
+                                    >
                                         Submit Definition
                                     </button>
                                 </div>
                             </>
                         )
+                        
                     
                     // if the user isn't the word master
                     ) : (
@@ -165,23 +208,44 @@ function Room() {
                                 Waiting for the Word Master to submit a word...
                             </div>
                         // if the word has been submitted
-                        ): (
-                            <div className="mt-6 bg-white dark:bg-[#353738] rounded-xl p-6 shadow-md w-full max-w-md text-center">
-                                <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-2">
-                                    Write your definition for:
-                                </h2>
-                                <p className="text-2xl font-semibold mb-4 text-black dark:text-white">{currentWord}</p>
+                        ) : (
+                            <>
+                                <div className="text-md font-bold text-red-700 dark:text-red-400">
+                                    Make up a fake definition to fool other players!
+                                </div>
+                                <div className="mt-6 bg-white dark:bg-[#353738] rounded-xl p-6 shadow-md w-full max-w-md text-center">
+                                    <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-2">
+                                        Write your definition for:
+                                    </h2>
+                                    <p className="text-2xl font-semibold mb-4 text-black dark:text-white">{currentWord}</p>
 
-                                <textarea
-                                    className="w-full p-3 rounded bg-gray-200 dark:bg-[#18191a] dark:text-white"
-                                    placeholder="Enter your definition..."
-                                    rows={3}
-                                ></textarea>
+                                    <textarea
+                                        className="w-full p-3 rounded bg-gray-200 dark:bg-[#18191a] dark:text-white"
+                                        placeholder="Enter your definition..."
+                                        rows={3}
+                                        value={definitionText}
+                                        onChange={(e) => setDefinitionText(e.target.value)}
+                                    />
 
-                                <button className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md">
-                                    Submit Definition
-                                </button>
-                            </div>
+                                    <button
+                                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+                                        onClick={() => {
+                                            if (roomCode && definitionText.trim()) {
+                                                socket.emit("submit-definition", {
+                                                    roomCode,
+                                                    definition: definitionText.trim(),
+                                                    playerId: socket.id,
+                                                });
+                                                console.log("[socket] Submitted definition:", definitionText);
+                                                setDefinitionText('');
+                                                setWritingDefinitions(false);
+                                            }
+                                        }}
+                                    >
+                                        Submit Definition
+                                    </button>
+                                </div>
+                            </>
                         )
                     )}
                 </div>

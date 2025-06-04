@@ -11,6 +11,8 @@ interface GameState {
     round: number;
     currentWordMasterIndex: number;
     submittedWord?: string;
+    definitions: { id: string; text: string }[];
+    submittedDefinitionCount: number;
 }
 
 const gameStates: Record<string, GameState> = {};
@@ -21,6 +23,8 @@ export function initializeGame(roomCode: string, players: Player[], io: Server) 
         players,
         round: 1,
         currentWordMasterIndex: 0,
+        definitions: [],
+        submittedDefinitionCount: 0,
     };
 
     assignWordMaster(roomCode, io);
@@ -64,7 +68,31 @@ export function acceptWord(roomCode: string, word: string, io: Server) {
         word: word,
         round: game.round,
     })
+}
 
+export function submitDefinition(roomCode: string, playerId: string, definition: string, io: Server) {
+    const game = gameStates[roomCode];
+    if (!game) return;
+
+    game.definitions.push({ id: playerId, text: definition });
+    game.submittedDefinitionCount++;
+
+    const totalNonWordMasters = game.players.length - 1;
+    if (game.submittedDefinitionCount === totalNonWordMasters) {
+        const randomized = game.definitions
+            .map(d => ({ ...d }))
+            .sort(() => Math.random() - 0.5);
+
+        io.to(roomCode).emit("show-definitions", {
+            definitions: randomized.map(d => d.text),
+        });
+
+        console.log(`[Game] All definitions received for ${roomCode}. Emitting to clients.`);
+
+        // reset these for next round
+        game.definitions = [];
+        game.submittedDefinitionCount = 0;
+    }
 }
 
 export function getGameState(roomCode: string): GameState | undefined {

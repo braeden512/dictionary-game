@@ -225,7 +225,7 @@ function HostRoom() {
                             <div className="text-xl text-gray-400 px-10 tracking-wide rounded-xl dark:text-gray-500 text-center">
                                 Now write your definition!
                             </div>
-                        </div>  
+                        </div>
                     )}
                 </div>
             )}
