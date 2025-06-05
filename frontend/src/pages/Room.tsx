@@ -35,7 +35,7 @@ function Room() {
             setWordMasterId(wordMasterId);
             setCurrentRound(round);
 
-            const myId = socket.id; // or from localStorage if needed
+            const myId = socket.id;
             setIsWordMaster(myId === wordMasterId);
         });
 
@@ -99,9 +99,6 @@ function Room() {
 
     return (
         <Base>
-            {/* bug testing stuff */}
-            {/* <h1> Room {roomCode}</h1>
-            <p>User ID: {userId}</p> */}
             {/* if the game hasn't started */}
             {!gameStarted ? (
                 <div className="flex flex-col items-center justify-center">
@@ -118,21 +115,6 @@ function Room() {
             // if the game has started
             ) : (
                  <div className="flex flex-col items-center justify-center mt-6">
-                    {showDefinitions && (
-                        <div className="mt-6 bg-white dark:bg-[#353738] rounded-xl p-6 shadow-md w-full max-w-xl text-center">
-                            <h2 className="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4">
-                                Guess the correct definition for: {currentWord}
-                            </h2>
-                            <ul className="space-y-4">
-                                {definitions.map((def, index) => (
-                                    <li key={index} className="bg-gray-200 dark:bg-[#18191a] dark:text-white p-4 rounded-md">
-                                        {def}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
                     {/* if the user is the word master */}
                     {isWordMaster ? (
                         // if the word hasn't been submitted
