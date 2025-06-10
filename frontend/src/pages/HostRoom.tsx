@@ -5,7 +5,9 @@ import Base from '../components/Base';
 import { socket } from '../components/socket';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Copy, Check } from 'lucide-react';
+import LobbyStage from '../components/hostRoom/LobbyStage';
+import ChoosingWordStage from '../components/hostRoom/ChoosingWordStage';
+import WordRevealedStage from '../components/hostRoom/WordRevealedStage';
 
 interface User {
     id: string;
@@ -131,103 +133,28 @@ function HostRoom() {
 
     return (
         <Base>
-            {/* if the game hasn't started */}
             {!gameStarted ? (
-                <div className="flex flex-col items-center justify-center">
-                
-                    <div className="mt-5 bg-white border border-gray-300 rounded-2xl shadow-lg p-8 text-center max-w-md relative dark:bg-[#353738] dark:border-[#56585a]">
-                        <p className="text-lg text-gray-600 mb-2 dark:text-white">Share this room code with others:</p>
-                        <div className='relative'>
-                            <div className="text-5xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl dark:bg-[#14181e]">
-                                {roomCode}
-                            </div>
-                            <button
-                                // call handleCopy function
-                                onClick={handleCopy}
-                                className="absolute top-2 right-2 p-1 text-blue-600 hover:text-blue-800 transition"
-                                aria-label="Copy room code"
-                            >
-                                {/* when clicked, switch to check mark for 2 seconds, then go back */}
-                                {copied ? <Check size={20} /> : <Copy size={20} />}
-                            </button>
-                        </div>
-                        <button
-                            onClick={startGame}
-                            disabled={userList.length < 3}
-                            className={`mt-3 w-full text-white text-lg font-semibold px-6 py-3 rounded-xl shadow transition duration-200 ${
-                                userList.length < 3
-                                ? 'bg-neutral-400 dark:bg-neutral-800 cursor-not-allowed'
-                                : 'bg-green-800 hover:bg-green-700'
-                            }`}
-                        >
-                            {/* message for how many players are needed to start the game */}
-                            {userList.length < 3
-                                ? `Need ${3 - userList.length} more player${3 - userList.length === 1 ? '' : 's'}`
-                                : 'Start Game'}
-                        </button>
-                    </div>
-                    <p
-                        key={currentTipIndex}
-                        className="text-lg text-gray-600 m-4 dark:text-white transition-opacity duration-700 ease-in-out opacity-100"
-                    >
-                        💡 Tip: {tips[currentTipIndex]}
-                    </p>
-                    {/* Connected Users */}
-                    {userList.length > 0 && (
-                        <div className="border border-gray-300 bg-white shadow-lg rounded-xl p-6 max-w-3xl w-full dark:bg-[#353738] dark:border-[#56585a]">
-                            <h2 className="text-xl font-semibold text-gray-700 mb-2 text-center mb-5 dark:text-white">Connected Users</h2>
-                            {/* displayed in colored blocks */}
-                            <div className="grid grid-cols-5 gap-2">
-                                {userList.map((user, index) => {
-                                    const color = colors[index % colors.length];
-                                    return (
-                                        <div key={user.id} className={`rounded-xl px-2 py-6 text-center font-semibold text-sm ${color}`}>
-                                        {user.username}
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            // if the game has started
+            <LobbyStage
+                roomCode={roomCode}
+                userList={userList}
+                copied={copied}
+                handleCopy={handleCopy}
+                startGame={startGame}
+                currentTip={tips[currentTipIndex]}
+            />
             ) : (
-                <div className="flex flex-col items-center justify-center">
-                    {/* If the word hasn't been submitted yet */}
-                    {!submitted ? (
-                        <>
-                            <p
-                                key={currentTipIndex}
-                                className="text-lg text-gray-600 m-4 dark:text-white transition-opacity duration-700 ease-in-out opacity-100"
-                            >
-                                💡 Tip: {tips[currentTipIndex]}
-                            </p>
-                                {wordMaster && (
-                                    <div>
-                                        <div className="text-5xl mt-10 font-semibold text-gray-600 px-10 py-10 rounded-xl dark:text-gray-300">
-                                            <span className="font-bold">{wordMaster.username}</span> is choosing the word...
-                                        </div>
-                                        <div className="text-2xl text-gray-500 px-10 tracking-wide rounded-xl dark:text-gray-400 text-center">
-                                            Get ready to make up a definition!
-                                        </div>  
-                                    </div>  
-                            )}
-                        </>
-                    ) : (
-                        // When the word is submitted
-                        <div>
-                            <div className="text-4xl mt-20 font-semibold text-center text-gray-500 px-10 rounded-xl dark:text-gray-400">
-                                The word is...
-                            </div>
-                            <div className="text-7xl mb-10 mt-1 text-center font-semibold text-gray-500 px-10 rounded-xl dark:text-gray-400">
-                                '<span className="font-bold text-gray-800 dark:text-gray-100">{word}</span>'
-                            </div>
-                            <div className="text-xl text-gray-400 px-10 tracking-wide rounded-xl dark:text-gray-500 text-center">
-                                Now write your definition!
-                            </div>
-                        </div>  
-                    )}
-                </div>
+            <div className="flex flex-col items-center justify-center">
+                {!submitted ? (
+                wordMaster && (
+                    <ChoosingWordStage
+                    wordMaster={wordMaster}
+                    currentTip={tips[currentTipIndex]}
+                    />
+                )
+                ) : (
+                <WordRevealedStage word={word} />
+                )}
+            </div>
             )}
         </Base>
     );
