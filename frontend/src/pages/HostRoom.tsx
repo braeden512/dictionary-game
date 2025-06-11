@@ -5,9 +5,10 @@ import Base from '../components/Base';
 import { socket } from '../components/socket';
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import LobbyStage from '../components/hostRoom/LobbyStage';
-import ChoosingWordStage from '../components/hostRoom/ChoosingWordStage';
-import WordRevealedStage from '../components/hostRoom/WordRevealedStage';
+import LobbyStage from './hostStages/LobbyStage';
+import ChoosingWordStage from './hostStages/ChoosingWordStage';
+import WordRevealedStage from './hostStages/WordRevealedStage';
+import tips from '../data/tips.json';
 
 interface User {
     id: string;
@@ -26,26 +27,6 @@ function HostRoom() {
     const [wordMaster, setWordMaster] = useState<User | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const [word, setWord] = useState("");
-
-    // used for colored blocks of users
-    const colors = [
-        'bg-red-200 text-red-800',
-        'bg-blue-200 text-blue-800',
-        'bg-green-200 text-green-800',
-        'bg-yellow-200 text-yellow-800',
-        'bg-purple-200 text-purple-800',
-        'bg-pink-200 text-pink-800',
-        'bg-orange-200 text-orange-800',
-        'bg-teal-200 text-teal-800',
-    ];
-    const tips = [
-        "Share your room code with friends to start the game",
-        "You can start the game once everyone joins.",
-        "Each player will write a fake definition for a word.",
-        "Make sure everyone is ready before starting!",
-        "Try not to make your definition too easy!",
-        "You must have three or more players to start the game.",
-    ];
 
     useEffect(() => {
 
@@ -118,7 +99,7 @@ function HostRoom() {
             socket.off('not-enough-players');
             clearInterval(interval);
         };
-    }, [id]);
+    }, [id, navigate]);
 
     const handleCopy = () => {
         navigator.clipboard.writeText(roomCode);
