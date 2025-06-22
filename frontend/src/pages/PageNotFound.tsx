@@ -6,7 +6,7 @@ function PageNotFound() {
     <Base>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center px-6">
         <h1 className="text-6xl font-extrabold text-red-500 dark:text-red-400 mb-4">404</h1>
-        <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">Oops! Page Not Found</h2>
+        <h2 className="text-3xl font-bold text-gray-800 dark:text-white mb-2">That word isn't in our dictionary!</h2>
         <p className="text-gray-600 dark:text-gray-300 mb-6">
           The page you're looking for doesn't exist or was moved.
         </p>
