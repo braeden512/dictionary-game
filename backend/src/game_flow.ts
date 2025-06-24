@@ -12,6 +12,7 @@ interface GameState {
     currentWordMasterIndex: number;
     submittedWord?: string;
     definitions: { userId: string; definition: string }[];
+    votes?: { voterId: string; voteIndex: number }[];
 }
 
 const gameStates: Record<string, GameState> = {};
@@ -98,6 +99,27 @@ export function submitDefinition(roomCode: string, userId: string, definition: s
             definitions: shuffled.map(d => d.definition),
         });
     }
+}
+
+export function submitVote(roomCode: string, voterId: string, voteIndex: number, io: Server) {
+  const game = gameStates[roomCode];
+  if (!game) return;
+
+  if (!game.votes) {
+    game.votes = [];
+  }
+
+  // Prevent duplicate votes
+  if (game.votes.find(v => v.voterId === voterId)) return;
+
+  game.votes!.push({ voterId, voteIndex });
+
+  io.to(roomCode).emit("vote-submitted", { voterId, voteIndex });
+
+  const nonMasters = game.players.filter(p => p.id !== game.players[game.currentWordMasterIndex].id);
+  if (game.votes!.length >= nonMasters.length) {
+    io.to(roomCode).emit("all-votes-submitted");
+  }
 }
 
 export function getGameState(roomCode: string): GameState | undefined {

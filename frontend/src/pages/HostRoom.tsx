@@ -29,7 +29,9 @@ function HostRoom() {
     const [submitted, setSubmitted] = useState(false);
     const [word, setWord] = useState("");
     const [definitions, setDefinitions] = useState<string[]>([]);
-    const [showDefinitions, setShowDefinitions] = useState(false); 
+    const [showDefinitions, setShowDefinitions] = useState(false);
+    const [votesReceived, setVotesReceived] = useState(0);
+    const [totalPlayers, setTotalPlayers] = useState(0);
 
     useEffect(() => {
 
@@ -79,6 +81,7 @@ function HostRoom() {
 
         socket.on('room-users', (users: User[]) => {
             setUserList(users);
+            setTotalPlayers(users.length - 1);
         })
 
         socket.on('assign-word-master', ({ wordMasterId, username, round }) => {
@@ -95,6 +98,10 @@ function HostRoom() {
         socket.on('reveal-definitions', ({ definitions }) => {
             setDefinitions(definitions);
             setShowDefinitions(true);
+        });
+
+        socket.on('vote-submitted', () => {
+            setVotesReceived((prev) => prev + 1);
         });
 
         return () => {
@@ -135,6 +142,8 @@ function HostRoom() {
             <DisplayDefinitions
                 definitions={definitions}
                 currentWord={word}
+                votesReceived={votesReceived}
+                totalPlayers={totalPlayers}
             />
             ) : (
             <div className="flex flex-col items-center justify-center">
@@ -146,7 +155,7 @@ function HostRoom() {
                     />
                 )
                 ) : (
-                <WordRevealedStage word={word} />
+                <WordRevealedStage word={word}/>
                 )}
             </div>
             )}
