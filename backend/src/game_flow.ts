@@ -11,6 +11,7 @@ interface GameState {
     round: number;
     currentWordMasterIndex: number;
     submittedWord?: string;
+    definitions: { userId: string; definition: string }[];
 }
 
 const gameStates: Record<string, GameState> = {};
@@ -21,6 +22,7 @@ export function initializeGame(roomCode: string, players: Player[], io: Server) 
         players,
         round: 1,
         currentWordMasterIndex: 0,
+        definitions: [],
     };
 
     assignWordMaster(roomCode, io);
@@ -57,6 +59,7 @@ export function acceptWord(roomCode: string, word: string, io: Server) {
     if (!game) return;
 
     game.submittedWord = word;
+    game.definitions = [];
 
     console.log(`[Game] Word submitted for room ${roomCode}: ${word}`);
 
@@ -65,6 +68,36 @@ export function acceptWord(roomCode: string, word: string, io: Server) {
         round: game.round,
     })
 
+}
+
+export function submitDefinition(roomCode: string, userId: string, definition: string, io: Server) {
+    const game = gameStates[roomCode];
+    if (!game) return;
+
+    // Avoid duplicates
+    if (game.definitions.find(d => d.userId === userId)) return;
+
+    game.definitions.push({ userId, definition });
+
+    const wordMaster = game.players[game.currentWordMasterIndex];
+    const nonMasters = game.players.filter(p => p.id !== wordMaster.id);
+
+    const allSubmitted = nonMasters.every(p =>
+        game.definitions.some(d => d.userId === p.id)
+    );
+
+    if (allSubmitted) {
+        console.log(`[Game] All definitions submitted for room ${roomCode}`);
+
+        io.to(roomCode).emit("all-definitions-submitted");
+
+        // Shuffle before sending to ensure randomness
+        const shuffled = [...game.definitions].sort(() => Math.random() - 0.5);
+
+        io.to(roomCode).emit("reveal-definitions", {
+            definitions: shuffled.map(d => d.definition),
+        });
+    }
 }
 
 export function getGameState(roomCode: string): GameState | undefined {

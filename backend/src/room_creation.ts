@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import pool from './db';
-import { initializeGame, nextRound, acceptWord } from './game_flow';
+import { initializeGame, nextRound, acceptWord, submitDefinition } from './game_flow';
 
 // function to generate a 6-digit code
 function generateRoomCode(): string {
@@ -99,6 +99,10 @@ export function setupRoomCreation(io: Server) {
 
       acceptWord(roomCode, word, io);
     })
+
+    socket.on('submit-definition', ({ roomCode, definition }) => {
+      submitDefinition(roomCode, socket.id, definition, io);
+    });
     
     const removeUserFromRooms = async () => {
       for (const roomCode in usersInRooms) {

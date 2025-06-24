@@ -8,6 +8,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import LobbyStage from './hostStages/LobbyStage';
 import ChoosingWordStage from './hostStages/ChoosingWordStage';
 import WordRevealedStage from './hostStages/WordRevealedStage';
+import DisplayDefinitions from './hostStages/DisplayDefinitions';
 import tips from '../data/tips.json';
 
 interface User {
@@ -27,6 +28,8 @@ function HostRoom() {
     const [wordMaster, setWordMaster] = useState<User | null>(null);
     const [submitted, setSubmitted] = useState(false);
     const [word, setWord] = useState("");
+    const [definitions, setDefinitions] = useState<string[]>([]);
+    const [showDefinitions, setShowDefinitions] = useState(false); 
 
     useEffect(() => {
 
@@ -89,6 +92,11 @@ function HostRoom() {
             setWord(word);
         });
 
+        socket.on('reveal-definitions', ({ definitions }) => {
+            setDefinitions(definitions);
+            setShowDefinitions(true);
+        });
+
         return () => {
             socket.emit('leave-room');
             socket.off('join-error');
@@ -122,6 +130,11 @@ function HostRoom() {
                 handleCopy={handleCopy}
                 startGame={startGame}
                 currentTip={tips[currentTipIndex]}
+            />
+            ) : showDefinitions ? (
+            <DisplayDefinitions
+                definitions={definitions}
+                currentWord={word}
             />
             ) : (
             <div className="flex flex-col items-center justify-center">

@@ -6,6 +6,9 @@ import WaitingForGameStart from './roomStages/WaitingForGameStart';
 import WordSubmission from './roomStages/WordSubmission';
 import DefinitionWriting from './roomStages/DefinitionWriting';
 import WaitingForWord from './roomStages/WaitingForWord';
+import VotingStage from './roomStages/VotingStage';
+import WaitingForVotes from './roomStages/WaitingForVotes';
+import WaitingForDefinitions from './roomStages/WaitingForDefinitions';
 
 function Room() {
   const { roomCode, userId } = useParams();
@@ -17,6 +20,9 @@ function Room() {
   const [word, setWord] = useState('');
   const [writingDefinitions, setWritingDefinitions] = useState(false);
   const [currentWord, setCurrentWord] = useState('');
+  const [allSubmitted, setAllSubmitted] = useState(false);
+  const [isVotingStage, setIsVotingStage] = useState(false);
+  const [definitions, setDefinitions] = useState<string[]>([]);
 
   useEffect(() => {
     const username = localStorage.getItem('username');
@@ -52,6 +58,17 @@ function Room() {
       setWritingDefinitions(true);
     });
 
+    socket.on('all-definitions-submitted', () => {
+      console.log('[socket] All definitions submitted');
+      setAllSubmitted(true);
+    });
+
+    socket.on('reveal-definitions', ({ definitions }) => {
+      setDefinitions(definitions); // this is a list of strings
+      setIsVotingStage(true);
+      setWritingDefinitions(false); // just in case
+    });
+
     socket.on('room-closed', () => {
       alert('The host has ended the game.');
       socket.emit('leave-room');
@@ -81,10 +98,19 @@ function Room() {
     socket.emit('submit-definition', { roomCode, definition });
   };
 
+  const handleVote = (index: number) => {
+    socket.emit('submit-vote', { roomCode, voteIndex: index });
+  };
+
   let content;
 
   if (!gameStarted) {
     content = <WaitingForGameStart />;
+  } else if (isVotingStage) {
+    // show vote screen to players, waiting screen to word master
+    content = isWordMaster
+      ? <WaitingForVotes />
+      : <VotingStage definitions={definitions} onVote={handleVote} currentWord={currentWord} />;
   } else if (isWordMaster && !writingDefinitions) {
     content = <WordSubmission word={word} setWord={setWord} onSubmit={handleWordSubmit} />;
   } else if (writingDefinitions) {

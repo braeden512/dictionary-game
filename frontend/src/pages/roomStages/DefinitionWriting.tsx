@@ -1,4 +1,5 @@
 import { useState } from "react";
+import WaitingForDefinitions from './WaitingForDefinitions';
 
 type Props = {
   currentWord: string;
@@ -7,6 +8,17 @@ type Props = {
 
 const DefinitionWriting = ({ currentWord, onSubmit }: Props) => {
   const [definition, setDefinition] = useState('');
+  const [submitted, setSubmitted] = useState(false);
+
+  const handleSubmit = () => {
+    if (definition.trim() === '') return;
+    onSubmit(definition);
+    setSubmitted(true);
+  };
+
+  if (submitted) {
+    return <WaitingForDefinitions />;
+  }
 
   return (
     <div className="mt-6 bg-white dark:bg-[#353738] rounded-xl p-6 shadow-md w-full max-w-md text-center">
@@ -23,7 +35,7 @@ const DefinitionWriting = ({ currentWord, onSubmit }: Props) => {
       ></textarea>
       <button
         className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
-        onClick={() => onSubmit(definition)}
+        onClick={handleSubmit}
       >
         Submit Definition
       </button>
