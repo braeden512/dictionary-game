@@ -12,6 +12,7 @@ interface GameState {
     currentWordMasterIndex: number;
     submittedWord?: string;
     definitions: { userId: string; definition: string }[];
+    shuffledDefinitions?: { userId: string; definition: string; originalIndex: number }[];
     votes?: { voterId: string; voteIndex: number }[];
 }
 
@@ -89,62 +90,81 @@ export function submitDefinition(roomCode: string, userId: string, definition: s
 
         io.to(roomCode).emit("all-definitions-submitted");
 
-        // Shuffle before sending to ensure randomness
-        const shuffled = [...game.definitions].sort(() => Math.random() - 0.5);
+        // Fisher-Yates shuffle
+        const originalWithIndex = game.definitions.map((def, i) => ({ ...def, originalIndex: i }));
+        for (let i = originalWithIndex.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [originalWithIndex[i], originalWithIndex[j]] = [originalWithIndex[j], originalWithIndex[i]];
+        }
+        const shuffledWithIndex = originalWithIndex;
+
+        game.shuffledDefinitions = shuffledWithIndex;
 
         io.to(roomCode).emit("reveal-definitions", {
-            definitions: shuffled.map(d => d.definition),
+            definitions: shuffledWithIndex.map(d => d.definition),
         });
     }
 }
 
 export function submitVote(roomCode: string, voterId: string, voteIndex: number, io: Server) {
-  const game = gameStates[roomCode];
-  if (!game) return;
+    const game = gameStates[roomCode];
+    if (!game || !game.shuffledDefinitions) return;
 
-  if (!game.votes) {
-    game.votes = [];
-  }
+    if (!game.votes) {
+        game.votes = [];
+    }
 
-  // Prevent duplicate votes
-  if (game.votes.find(v => v.voterId === voterId)) return;
+    if (game.votes.find(v => v.voterId === voterId)) return;
 
-  game.votes.push({ voterId, voteIndex });
+    const originalIndex = game.shuffledDefinitions[voteIndex]?.originalIndex;
+    if (originalIndex === undefined) return;
 
-  io.to(roomCode).emit("vote-submitted", { voterId, voteIndex });
+    game.votes.push({ voterId, voteIndex: originalIndex });
 
-  const wordMaster = game.players[game.currentWordMasterIndex];
-  const nonMasters = game.players.filter(p => p.id !== wordMaster.id);
+    io.to(roomCode).emit("vote-submitted", { voterId, voteIndex });
 
-  // When all non-word-master players have voted
-  if (game.votes.length >= nonMasters.length) {
-    io.to(roomCode).emit("all-votes-submitted");
+    const wordMaster = game.players[game.currentWordMasterIndex];
+    const nonMasters = game.players.filter(p => p.id !== wordMaster.id);
 
-    const correctIndex = game.definitions.findIndex(d => d.userId === wordMaster.id);
+    if (game.votes.length >= nonMasters.length) {
+        io.to(roomCode).emit("all-votes-submitted");
 
-    const results = game.definitions.map((def, index) => {
-      const author = game.players.find(p => p.id === def.userId);
-      const voteCount = game.votes!.filter(v => v.voteIndex === index).length;
-      return {
-        definition: def.definition,
-        author: author?.username ?? "Unknown",
-        voteCount,
-        isCorrect: def.userId === wordMaster.id,
-      };
-    });
+        const correctOriginalIndex = game.definitions.findIndex(d => d.userId === wordMaster.id);
 
-    const playerVotes = game.votes.map(vote => ({
-      voterId: vote.voterId,
-      voteIndex: vote.voteIndex,
-      correct: vote.voteIndex === correctIndex,
-    }));
+        const results = game.shuffledDefinitions.map((def, index) => {
+            const author = game.players.find(p => p.id === def.userId);
+            const voteCount = game.votes!.filter(v => v.voteIndex === def.originalIndex).length;
 
-    io.to(roomCode).emit("round-results", {
-      correctIndex,
-      definitions: results,
-      playerVotes,
-    });
-  }
+            return {
+                definition: def.definition,
+                author: author?.username ?? "Unknown",
+                voteCount,
+                isCorrect: def.originalIndex === correctOriginalIndex,
+            };
+        });
+
+        const playerVotes = game.votes.map(vote => {
+            const shuffledIndex = game.shuffledDefinitions!.findIndex(
+                d => d.originalIndex === vote.voteIndex
+            );
+
+            return {
+                voterId: vote.voterId,
+                voteIndex: shuffledIndex,
+                correct: vote.voteIndex === correctOriginalIndex,
+            };
+        });
+
+        const correctShuffledIndex = game.shuffledDefinitions.findIndex(
+            d => d.originalIndex === correctOriginalIndex
+        );
+
+        io.to(roomCode).emit("round-results", {
+            correctIndex: correctShuffledIndex,
+            definitions: results,
+            playerVotes,
+        });
+    }
 }
 
 export function getGameState(roomCode: string): GameState | undefined {
