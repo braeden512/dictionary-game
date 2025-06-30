@@ -10,6 +10,23 @@ import ChoosingWordStage from './hostStages/ChoosingWordStage';
 import WordRevealedStage from './hostStages/WordRevealedStage';
 import DisplayDefinitions from './hostStages/DisplayDefinitions';
 import tips from '../data/tips.json';
+import HostRoundResults from './hostStages/HostRoundResults';
+
+interface DefinitionResult {
+  definition: string;
+  author: string;
+  voteCount: number;
+  isCorrect: boolean;
+}
+interface RoundResultsData {
+  correctIndex: number;
+  definitions: DefinitionResult[];
+  playerVotes: {
+    voterId: string;
+    voteIndex: number;
+    correct: boolean;
+  }[];
+}
 
 interface User {
     id: string;
@@ -32,6 +49,7 @@ function HostRoom() {
     const [showDefinitions, setShowDefinitions] = useState(false);
     const [votesReceived, setVotesReceived] = useState(0);
     const [totalPlayers, setTotalPlayers] = useState(0);
+    const [roundResults, setRoundResults] = useState<RoundResultsData | null>(null);
 
     useEffect(() => {
 
@@ -104,6 +122,12 @@ function HostRoom() {
             setVotesReceived((prev) => prev + 1);
         });
 
+        socket.on('round-results', (results) => {
+            console.log('[socket] Host received round results:', results);
+            setShowDefinitions(false);
+            setRoundResults(results);
+        });
+
         return () => {
             socket.emit('leave-room');
             socket.off('join-error');
@@ -130,36 +154,40 @@ function HostRoom() {
     return (
         <Base>
             {!gameStarted ? (
-            <LobbyStage
-                roomCode={roomCode}
-                userList={userList}
-                copied={copied}
-                handleCopy={handleCopy}
-                startGame={startGame}
-                currentTip={tips[currentTipIndex]}
-            />
-            ) : showDefinitions ? (
-            <DisplayDefinitions
-                definitions={definitions}
-                currentWord={word}
-                votesReceived={votesReceived}
-                totalPlayers={totalPlayers}
-            />
-            ) : (
-            <div className="flex flex-col items-center justify-center">
-                {!submitted ? (
-                wordMaster && (
-                    <ChoosingWordStage
-                    wordMaster={wordMaster}
+                <LobbyStage
+                    roomCode={roomCode}
+                    userList={userList}
+                    copied={copied}
+                    handleCopy={handleCopy}
+                    startGame={startGame}
                     currentTip={tips[currentTipIndex]}
+                />
+            ) : roundResults ? (
+                <HostRoundResults
+                    results={roundResults}
+                />
+            ) : showDefinitions ? (
+                <DisplayDefinitions
+                    definitions={definitions}
+                    currentWord={word}
+                    votesReceived={votesReceived}
+                    totalPlayers={totalPlayers}
+                />
+            ) : (
+                <div className="flex flex-col items-center justify-center">
+                {!submitted ? (
+                    wordMaster && (
+                    <ChoosingWordStage
+                        wordMaster={wordMaster}
+                        currentTip={tips[currentTipIndex]}
                     />
-                )
+                    )
                 ) : (
-                <WordRevealedStage word={word}/>
+                    <WordRevealedStage word={word}/>
                 )}
-            </div>
+                </div>
             )}
-        </Base>
+            </Base>
     );
 }
 

@@ -80,10 +80,7 @@ export function submitDefinition(roomCode: string, userId: string, definition: s
 
     game.definitions.push({ userId, definition });
 
-    const wordMaster = game.players[game.currentWordMasterIndex];
-    const nonMasters = game.players.filter(p => p.id !== wordMaster.id);
-
-    const allSubmitted = nonMasters.every(p =>
+    const allSubmitted = game.players.every(p =>
         game.definitions.some(d => d.userId === p.id)
     );
 
@@ -112,13 +109,41 @@ export function submitVote(roomCode: string, voterId: string, voteIndex: number,
   // Prevent duplicate votes
   if (game.votes.find(v => v.voterId === voterId)) return;
 
-  game.votes!.push({ voterId, voteIndex });
+  game.votes.push({ voterId, voteIndex });
 
   io.to(roomCode).emit("vote-submitted", { voterId, voteIndex });
 
-  const nonMasters = game.players.filter(p => p.id !== game.players[game.currentWordMasterIndex].id);
-  if (game.votes!.length >= nonMasters.length) {
+  const wordMaster = game.players[game.currentWordMasterIndex];
+  const nonMasters = game.players.filter(p => p.id !== wordMaster.id);
+
+  // When all non-word-master players have voted
+  if (game.votes.length >= nonMasters.length) {
     io.to(roomCode).emit("all-votes-submitted");
+
+    const correctIndex = game.definitions.findIndex(d => d.userId === wordMaster.id);
+
+    const results = game.definitions.map((def, index) => {
+      const author = game.players.find(p => p.id === def.userId);
+      const voteCount = game.votes!.filter(v => v.voteIndex === index).length;
+      return {
+        definition: def.definition,
+        author: author?.username ?? "Unknown",
+        voteCount,
+        isCorrect: def.userId === wordMaster.id,
+      };
+    });
+
+    const playerVotes = game.votes.map(vote => ({
+      voterId: vote.voterId,
+      voteIndex: vote.voteIndex,
+      correct: vote.voteIndex === correctIndex,
+    }));
+
+    io.to(roomCode).emit("round-results", {
+      correctIndex,
+      definitions: results,
+      playerVotes,
+    });
   }
 }
 

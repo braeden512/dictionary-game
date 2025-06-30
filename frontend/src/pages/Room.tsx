@@ -9,6 +9,20 @@ import WaitingForWord from './roomStages/WaitingForWord';
 import VotingStage from './roomStages/VotingStage';
 import WaitingForVotes from './roomStages/WaitingForVotes';
 import WaitingForDefinitions from './roomStages/WaitingForDefinitions';
+import RoundResults from './roomStages/RoundResults';
+
+interface DefinitionResult {
+  definition: string;
+  author: string;
+  voteCount: number;
+  isCorrect: boolean;
+}
+interface RoundResultsProps {
+  correctIndex: number;
+  playerVoteIndex: number;
+  definitions: DefinitionResult[];
+  isWordMaster: boolean;
+}
 
 function Room() {
   const { roomCode, userId } = useParams();
@@ -23,6 +37,10 @@ function Room() {
   const [allSubmitted, setAllSubmitted] = useState(false);
   const [isVotingStage, setIsVotingStage] = useState(false);
   const [definitions, setDefinitions] = useState<string[]>([]);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [wordSubmitted, setWordSubmitted] = useState(false);
+  const [roundResults, setRoundResults] = useState<RoundResultsProps | null>(null);
+
 
   useEffect(() => {
     const username = localStorage.getItem('username');
@@ -51,6 +69,14 @@ function Room() {
       setWordMasterId(wordMasterId);
       setCurrentRound(round);
       setIsWordMaster(socket.id === wordMasterId);
+
+      setWord('');
+      setWordSubmitted(false);
+      setDefinitions([]);
+      setHasVoted(false);
+      setWritingDefinitions(false);
+      setIsVotingStage(false);
+      setRoundResults(null);
     });
 
     socket.on('write-definitions', ({ word }) => {
@@ -67,6 +93,21 @@ function Room() {
       setDefinitions(definitions); // this is a list of strings
       setIsVotingStage(true);
       setWritingDefinitions(false); // just in case
+    });
+
+    socket.on('round-results', (results) => {
+      const { correctIndex, definitions, playerVotes } = results;
+
+      const currentPlayerVote = playerVotes.find((v: any) => v.voterId === socket.id);
+      const playerVoteIndex = currentPlayerVote ? currentPlayerVote.voteIndex : -1;
+
+      setRoundResults({
+        correctIndex,
+        playerVoteIndex,
+        definitions,
+        isWordMaster
+      });
+      setIsVotingStage(false);
     });
 
     socket.on('room-closed', () => {
@@ -88,10 +129,11 @@ function Room() {
       socket.off('write-definitions');
       socket.off('room-closed');
     };
-  }, [roomCode, navigate]);
+  }, [roomCode, navigate, isWordMaster]);
 
   const handleWordSubmit = () => {
     socket.emit('submit-word', { roomCode, word });
+    setWordSubmitted(true);
   };
 
   const handleDefinitionSubmit = (definition: string) => {
@@ -100,21 +142,32 @@ function Room() {
 
   const handleVote = (index: number) => {
     socket.emit('submit-vote', { roomCode, voteIndex: index });
+    setHasVoted(true);
   };
 
   let content;
 
   if (!gameStarted) {
     content = <WaitingForGameStart />;
-  } else if (isVotingStage) {
-    // show vote screen to players, waiting screen to word master
-    content = isWordMaster
-      ? <WaitingForVotes />
-      : <VotingStage definitions={definitions} onVote={handleVote} currentWord={currentWord} />;
-  } else if (isWordMaster && !writingDefinitions) {
+  } else if (roundResults) {
+    content = (
+      <RoundResults 
+        correctIndex={roundResults.correctIndex} 
+        playerVoteIndex={roundResults.playerVoteIndex} 
+        definitions={roundResults.definitions} 
+        isWordMaster={isWordMaster}
+      />
+    );
+  } else if (isWordMaster && !wordSubmitted) {
     content = <WordSubmission word={word} setWord={setWord} onSubmit={handleWordSubmit} />;
+  } else if (isWordMaster && isVotingStage) {
+    content = <WaitingForVotes />;
   } else if (writingDefinitions) {
     content = <DefinitionWriting currentWord={currentWord} onSubmit={handleDefinitionSubmit} />;
+  } else if (isVotingStage) {
+    content = hasVoted
+      ? <WaitingForVotes />
+      : <VotingStage definitions={definitions} onVote={handleVote} currentWord={currentWord} />;
   } else {
     content = <WaitingForWord />;
   }
