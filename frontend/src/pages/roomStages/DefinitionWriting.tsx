@@ -45,6 +45,7 @@ const DefinitionWriting = ({ currentWord, onSubmit, isWordMaster }: Props) => {
             className="w-full p-3 rounded bg-gray-200 dark:bg-[#18191a] dark:text-white"
             placeholder="Enter your definition..."
             rows={3}
+            maxLength={200}
             value={definition}
             onChange={(e) => setDefinition(e.target.value)}
           ></textarea>

@@ -21,7 +21,7 @@ function PageNotFound() {
           <img
             src="/logo512.png"
             alt="Dictionary Game Logo"
-            className="w-32 h-32 opacity-20 hover:opacity-40 transition"
+            className="w-32 h-32 opacity-20"
           />
         </div>
       </div>

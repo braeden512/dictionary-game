@@ -26,7 +26,7 @@ export default function HostRoundResults({ results }: HostRoundResultsProps) {
           <div
             key={index}
             className={`p-6 rounded-xl shadow border ${
-              res.isCorrect ? 'border-green-500 bg-green-100 dark:bg-green-900/40' : 'bg-white dark:bg-gray-800'
+              res.isCorrect ? 'border-green-500 bg-green-200 dark:bg-green-900/60' : 'bg-red-100 border-red-300 dark:bg-red-900/25 dark:border-red-800'
             }`}
           >
             <div className="text-lg font-medium text-gray-700 dark:text-gray-200">
@@ -41,7 +41,7 @@ export default function HostRoundResults({ results }: HostRoundResultsProps) {
 
       <div className="text-center mt-10">
         <button
-          className="px-6 py-3 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition"
+          className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
         >
           Start Next Round
         </button>

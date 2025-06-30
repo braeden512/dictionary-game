@@ -1,6 +1,7 @@
 const WaitingForWord = () => (
-  <div className="text-md font-semibold text-gray-700 dark:text-gray-200">
-    Waiting for the Word Master to submit a word...
+  <div className="flex flex-col items-center justify-center text-center mt-20">
+    <h1 className="text-3xl font-bold mb-4 text-gray-700 dark:text-gray-100">Waiting for the Word Master to choose a word...</h1>
+    <p className="text-gray-600 dark:text-gray-300">Look at the host screen while you wait.</p>
   </div>
 );
 
