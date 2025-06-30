@@ -163,7 +163,7 @@ function Room() {
   } else if (isWordMaster && isVotingStage) {
     content = <WaitingForVotes />;
   } else if (writingDefinitions) {
-    content = <DefinitionWriting currentWord={currentWord} onSubmit={handleDefinitionSubmit} />;
+    content = <DefinitionWriting currentWord={currentWord} onSubmit={handleDefinitionSubmit} isWordMaster={isWordMaster} />;
   } else if (isVotingStage) {
     content = hasVoted
       ? <WaitingForVotes />
