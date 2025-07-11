@@ -1,6 +1,5 @@
 // This is the view of the host once creating a room
 
-
 import Base from '../components/Base';
 import { socket } from '../components/socket';
 import { useEffect, useState } from 'react';
@@ -136,6 +135,10 @@ function HostRoom() {
             socket.off('assign-word-master');
             socket.off('submit-word');
             socket.off('not-enough-players');
+            socket.off('write-definitions');
+            socket.off('reveal-definitions');
+            socket.off('vote-submitted');
+            socket.off('round-results');
             clearInterval(interval);
         };
     }, [id, navigate]);
@@ -151,44 +154,48 @@ function HostRoom() {
         socket.emit('start-game', { roomCode });
     };
 
-    return (
-        <Base>
-            {!gameStarted ? (
-                <LobbyStage
-                    roomCode={roomCode}
-                    userList={userList}
-                    copied={copied}
-                    handleCopy={handleCopy}
-                    startGame={startGame}
-                    currentTip={tips[currentTipIndex]}
-                />
-            ) : roundResults ? (
-                <HostRoundResults
-                    results={roundResults}
-                />
-            ) : showDefinitions ? (
-                <DisplayDefinitions
-                    definitions={definitions}
-                    currentWord={word}
-                    votesReceived={votesReceived}
-                    totalPlayers={totalPlayers}
-                />
-            ) : (
-                <div className="flex flex-col items-center justify-center">
-                {!submitted ? (
-                    wordMaster && (
-                    <ChoosingWordStage
-                        wordMaster={wordMaster}
-                        currentTip={tips[currentTipIndex]}
-                    />
-                    )
-                ) : (
-                    <WordRevealedStage word={word}/>
-                )}
-                </div>
-            )}
-            </Base>
+    // rendering
+    let content;
+
+    if (!gameStarted) {
+    content = (
+        <LobbyStage
+        roomCode={roomCode}
+        userList={userList}
+        copied={copied}
+        handleCopy={handleCopy}
+        startGame={startGame}
+        currentTip={tips[currentTipIndex]}
+        />
     );
+    } else if (roundResults) {
+        content = (
+            <HostRoundResults
+            results={roundResults}
+            roomCode={roomCode}
+            />
+    );
+    } else if (showDefinitions) {
+        content = (
+            <DisplayDefinitions
+            definitions={definitions}
+            currentWord={word}
+            votesReceived={votesReceived}
+            totalPlayers={totalPlayers}
+            />
+    );
+    } else if (!submitted && wordMaster) {
+        content = (
+            <ChoosingWordStage
+            wordMaster={wordMaster}
+            currentTip={tips[currentTipIndex]}
+            />
+    );
+    } else {
+        content = <WordRevealedStage word={word} />;
+    }
+
+    return <Base>{content}</Base>;
 }
 
 export default HostRoom;

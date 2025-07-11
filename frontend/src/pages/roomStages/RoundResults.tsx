@@ -23,7 +23,7 @@ export default function RoundResults({
   if (isWordMaster) {
     return (
       <div className="text-center p-8">
-        <h2 className="text-3xl font-bold dark:text-white mb-4">You're the Word Master!</h2>
+        <h2 className="text-3xl font-bold dark:text-white mb-4">Time for the results!</h2>
         <p className="text-lg text-gray-700 dark:text-gray-300">Check the host screen to see how everyone voted.</p>
       </div>
     );

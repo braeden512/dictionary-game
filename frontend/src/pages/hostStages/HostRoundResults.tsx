@@ -1,3 +1,5 @@
+import { socket } from '../../components/socket';
+
 interface HostRoundResultsProps {
   results: {
     correctIndex: number;
@@ -13,10 +15,16 @@ interface HostRoundResultsProps {
       correct: boolean;
     }[];
   };
+  roomCode: string;
 }
 
 
-export default function HostRoundResults({ results }: HostRoundResultsProps) {
+export default function HostRoundResults({ results, roomCode }: HostRoundResultsProps) {
+
+  const handleNextRound = () => {
+    socket.emit('next-round', {roomCode})
+  }
+
   return (
     <div className="p-8 max-w-3xl mx-auto">
       <h2 className="text-3xl font-bold text-center mb-8 dark:text-white">Round Results</h2>
@@ -42,6 +50,7 @@ export default function HostRoundResults({ results }: HostRoundResultsProps) {
       <div className="text-center mt-10">
         <button
           className="px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+          onClick={handleNextRound}
         >
           Start Next Round
         </button>

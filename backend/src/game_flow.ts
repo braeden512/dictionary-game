@@ -53,6 +53,11 @@ export function nextRound(roomCode: string, io: Server) {
     game.currentWordMasterIndex =
         (game.currentWordMasterIndex + 1) % game.players.length;
 
+    // reset for the next round
+    game.submittedWord = undefined;
+    game.definitions = [];
+    game.votes = [];
+
     assignWordMaster(roomCode, io);
 }
 
