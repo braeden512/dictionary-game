@@ -109,7 +109,7 @@ function HostRoom() {
 
         socket.on('assign-word-master', ({ wordMasterId, username, round }) => {
             console.log(`Round ${round}: ${username} is the word master.`);
-            setWordMaster({id:wordMasterId, username})
+            setWordMaster({id:wordMasterId, username});
         })
 
         socket.on('write-definitions', ({ word }) => {
@@ -131,6 +131,15 @@ function HostRoom() {
             console.log('[socket] Host received round results:', results);
             setShowDefinitions(false);
             setRoundResults(results);
+        });
+
+        socket.on('new-round', () => {
+            setRoundResults(null);
+            setSubmitted(false);
+            setShowDefinitions(false);
+            setVotesReceived(0);
+            setDefinitions([]);
+            setWord("");
         });
 
         return () => {

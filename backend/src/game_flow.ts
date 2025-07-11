@@ -57,6 +57,8 @@ export function nextRound(roomCode: string, io: Server) {
     game.submittedWord = undefined;
     game.definitions = [];
     game.votes = [];
+    // emit new-round so host gets reset
+    io.to(roomCode).emit("new-round");
 
     assignWordMaster(roomCode, io);
 }
