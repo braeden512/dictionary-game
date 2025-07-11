@@ -8,7 +8,6 @@ import DefinitionWriting from './roomStages/DefinitionWriting';
 import WaitingForWord from './roomStages/WaitingForWord';
 import VotingStage from './roomStages/VotingStage';
 import WaitingForVotes from './roomStages/WaitingForVotes';
-import WaitingForDefinitions from './roomStages/WaitingForDefinitions';
 import RoundResults from './roomStages/RoundResults';
 
 interface DefinitionResult {
@@ -25,16 +24,13 @@ interface RoundResultsProps {
 }
 
 function Room() {
-  const { roomCode, userId } = useParams();
+  const { roomCode } = useParams();
   const navigate = useNavigate();
   const [gameStarted, setGameStarted] = useState(false);
-  const [wordMasterId, setWordMasterId] = useState<string | null>(null);
-  const [currentRound, setCurrentRound] = useState<number>(0);
   const [isWordMaster, setIsWordMaster] = useState(false);
   const [word, setWord] = useState('');
   const [writingDefinitions, setWritingDefinitions] = useState(false);
   const [currentWord, setCurrentWord] = useState('');
-  const [allSubmitted, setAllSubmitted] = useState(false);
   const [isVotingStage, setIsVotingStage] = useState(false);
   const [definitions, setDefinitions] = useState<string[]>([]);
   const [hasVoted, setHasVoted] = useState(false);
@@ -61,13 +57,19 @@ function Room() {
       window.location.href = '/';
     });
 
+    // when the user force disconnects
+    const handleBeforeUnload = () => {
+      localStorage.removeItem('username');
+      localStorage.removeItem('userId');
+      socket.emit('leave-room');
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     socket.on('game-started', () => {
       setGameStarted(true);
     });
 
     socket.on('assign-word-master', ({ wordMasterId, username, round }) => {
-      setWordMasterId(wordMasterId);
-      setCurrentRound(round);
       setIsWordMaster(socket.id === wordMasterId);
 
       setWord('');
@@ -82,11 +84,6 @@ function Room() {
     socket.on('write-definitions', ({ word }) => {
       setCurrentWord(word);
       setWritingDefinitions(true);
-    });
-
-    socket.on('all-definitions-submitted', () => {
-      console.log('[socket] All definitions submitted');
-      setAllSubmitted(true);
     });
 
     socket.on('reveal-definitions', ({ definitions }) => {
@@ -119,15 +116,16 @@ function Room() {
     });
 
     return () => {
-      localStorage.removeItem('username');
-      localStorage.removeItem('userId');
-      socket.emit('leave-room');
       socket.off('connect');
       socket.off('join-error');
       socket.off('game-started');
       socket.off('assign-word-master');
       socket.off('write-definitions');
       socket.off('room-closed');
+      socket.off('all-definitions-submitted');
+      socket.off('reveal-definitions');
+      socket.off('round-results');
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
   }, [roomCode, navigate, isWordMaster]);
 

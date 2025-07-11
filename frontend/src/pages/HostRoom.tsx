@@ -86,6 +86,12 @@ function HostRoom() {
             window.location.href = '/';
         });
 
+        // force disconnect
+        const handleBeforeUnload = () => {
+            socket.emit('leave-room');
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
         socket.on('game-started', () => {
             setGameStarted(true);
             console.log('[socket] Game has started!');
@@ -128,7 +134,6 @@ function HostRoom() {
         });
 
         return () => {
-            socket.emit('leave-room');
             socket.off('join-error');
             socket.off('game-started');
             socket.off('room-users');
@@ -140,6 +145,7 @@ function HostRoom() {
             socket.off('vote-submitted');
             socket.off('round-results');
             clearInterval(interval);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [id, navigate]);
 
