@@ -16,10 +16,11 @@ interface HostRoundResultsProps {
     }[];
   };
   roomCode: string;
+  round: number;
 }
 
 
-export default function HostRoundResults({ results, roomCode }: HostRoundResultsProps) {
+export default function HostRoundResults({ results, roomCode, round }: HostRoundResultsProps) {
 
   const handleNextRound = () => {
     socket.emit('next-round', {roomCode})
@@ -27,7 +28,7 @@ export default function HostRoundResults({ results, roomCode }: HostRoundResults
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
-      <h2 className="text-3xl font-bold text-center mb-8 dark:text-white">Round Results</h2>
+      <h2 className="text-3xl font-bold text-center mb-8 dark:text-white">Round {round} Results</h2>
 
       <div className="space-y-6">
         {results.definitions.map((res, index) => (

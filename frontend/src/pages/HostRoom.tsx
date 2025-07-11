@@ -49,6 +49,7 @@ function HostRoom() {
     const [votesReceived, setVotesReceived] = useState(0);
     const [totalPlayers, setTotalPlayers] = useState(0);
     const [roundResults, setRoundResults] = useState<RoundResultsData | null>(null);
+    const [round, setRound] = useState<number>(1);
 
     useEffect(() => {
 
@@ -110,6 +111,7 @@ function HostRoom() {
         socket.on('assign-word-master', ({ wordMasterId, username, round }) => {
             console.log(`Round ${round}: ${username} is the word master.`);
             setWordMaster({id:wordMasterId, username});
+            setRound(round);
         })
 
         socket.on('write-definitions', ({ word }) => {
@@ -188,6 +190,7 @@ function HostRoom() {
             <HostRoundResults
             results={roundResults}
             roomCode={roomCode}
+            round={round}
             />
     );
     } else if (showDefinitions) {
@@ -197,6 +200,7 @@ function HostRoom() {
             currentWord={word}
             votesReceived={votesReceived}
             totalPlayers={totalPlayers}
+            round={round}
             />
     );
     } else if (!submitted && wordMaster) {
@@ -204,10 +208,16 @@ function HostRoom() {
             <ChoosingWordStage
             wordMaster={wordMaster}
             currentTip={tips[currentTipIndex]}
+            round={round}
             />
     );
     } else {
-        content = <WordRevealedStage word={word} />;
+        content = (
+            <WordRevealedStage 
+            word={word}
+            round={round}
+            />
+        );
     }
 
     return <Base>{content}</Base>;

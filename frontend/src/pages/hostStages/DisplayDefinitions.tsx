@@ -3,16 +3,19 @@ import colors from '../../data/colors.json';
 interface DisplayDefinitionsProps {
   definitions: string[];
   currentWord: string;
+  round: number;
   votesReceived: number;
   totalPlayers: number;
 }
 
-export default function DisplayDefinitions({
-  definitions,
-  currentWord,
-}: DisplayDefinitionsProps) {
+export default function DisplayDefinitions({definitions, currentWord, round}: DisplayDefinitionsProps) {
   return (
-    <div className="p-8">
+    <div className="flex flex-col items-center p-8 space-y-6">
+      <div className="text-sm sm:text-base text-gray-500 dark:text-gray-400">
+        <span className="inline-block bg-gray-100 dark:bg-[#353738] text-gray-700 dark:text-gray-300 px-4 py-2 rounded-full shadow-sm">
+          🎯 Round {round}
+        </span>
+      </div>
       <h2 className="text-3xl font-semibold text-center text-gray-500 dark:text-gray-400">
         Definitions for:
       </h2>
@@ -20,17 +23,17 @@ export default function DisplayDefinitions({
         '{currentWord}'
       </h1>
 
-      <div className="grid gap-6 max-w-4xl mx-auto">
+      <div className="grid gap-6 w-full max-w-4xl">
         {definitions.map((definition, index) => {
           const colorClasses = colors[index % colors.length];
 
           return (
             <div
               key={index}
-              className={`rounded-xl shadow p-6 text-lg space-x-4 ${colorClasses}`}
+              className={`min-w-[300px] w-full rounded-xl shadow p-6 text-lg flex items-start space-x-3 ${colorClasses}`}
             >
               <span className="font-bold">{index + 1}.</span>
-              <span>{definition}</span>
+              <span className="break-words">{definition}</span>
             </div>
           );
         })}
