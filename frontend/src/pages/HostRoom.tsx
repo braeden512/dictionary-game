@@ -144,6 +144,14 @@ function HostRoom() {
             setWord("");
         });
 
+        socket.on('room-closed', () => {
+            alert('Someone has left the game.');
+            socket.emit('leave-room');
+            socket.removeAllListeners();
+            socket.disconnect();
+            navigate('/');
+        });
+
         return () => {
             socket.emit('leave-room');
             socket.off('join-error');
