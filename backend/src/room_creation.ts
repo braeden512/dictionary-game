@@ -1,6 +1,6 @@
 import { Server, Socket } from 'socket.io';
 import pool from './db';
-import { initializeGame, nextRound, acceptWord, submitDefinition, submitVote } from './game_flow';
+import { initializeGame, nextRound, acceptWord, submitDefinition, submitVote, removeGame } from './game_flow';
 
 // function to generate a 6-digit code
 function generateRoomCode(): string {
@@ -14,6 +14,7 @@ interface User {
   isHost: boolean;
 }
 
+const gameStarted: { [roomCode: string]: boolean } = {};
 const usersInRooms: { [roomCode: string]: User[] } = {};
 
 function getUsersInRoom(roomCode: string): User[] {
@@ -52,6 +53,12 @@ export function setupRoomCreation(io: Server) {
 
       const currentUsers = usersInRooms[roomCode];
 
+      // check if the room is locked
+      if (gameStarted[roomCode]) {
+        socket.emit('join-error', { message: 'Game already started. Cannot join.' });
+        return;
+      }
+      // check if the host already exists
       if (isHost && currentUsers.some(user => user.isHost)) {
         socket.emit('join-error', { message: 'Host already exists for this room.' });
         return;
@@ -78,6 +85,7 @@ export function setupRoomCreation(io: Server) {
 
       if (users.length >= 3){
         initializeGame(roomCode, users, io);
+        gameStarted[roomCode] = true;
         io.to(roomCode).emit('game-started');
         console.log(`Game started in room ${roomCode}`);
       }
@@ -121,28 +129,26 @@ export function setupRoomCreation(io: Server) {
 
         console.log(`${userLeaving.username} (${socket.id}) left room ${roomCode}${userLeaving.isHost ? ' [HOST]' : ''}`);
 
-        if (userLeaving.isHost) {
-          // Emit to all users that the room is closed
+        if (gameStarted[roomCode]) {
+          // Game has started, so end it for everyone
           io.to(roomCode).emit('room-closed');
-          console.log(`Host left, closing room ${roomCode}`);
-
-          // Disconnect all sockets in that room
-          const sockets = await io.in(roomCode).fetchSockets();
-          for (const s of sockets) {
-            s.leave(roomCode);
-            s.disconnect(true);
-          }
-
-          // Remove from memory
           delete usersInRooms[roomCode];
-
-          // Delete room from DB
+          delete gameStarted[roomCode];
+          removeGame(roomCode); // from game_flow.ts
           await pool.query('DELETE FROM rooms WHERE code = $1', [roomCode]);
-        }
-        else {
-          // If not host, just update the player list
-          const nonHostUsers = updatedUsers.filter(u => !u.isHost);
-          io.to(roomCode).emit('room-users', nonHostUsers);
+          console.log(`Game in room ${roomCode} ended because someone left.`);
+        } else {
+          if (userLeaving.isHost) {
+            // End lobby
+            io.to(roomCode).emit('room-closed');
+            delete usersInRooms[roomCode];
+            await pool.query('DELETE FROM rooms WHERE code = $1', [roomCode]);
+            console.log(`Host left, closing room ${roomCode}`);
+          } else {
+            // Update non-host user list
+            const nonHostUsers = updatedUsers.filter(u => !u.isHost);
+            io.to(roomCode).emit('room-users', nonHostUsers);
+          }
         }
       }
     };

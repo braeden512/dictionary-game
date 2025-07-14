@@ -145,6 +145,7 @@ function HostRoom() {
         });
 
         return () => {
+            socket.emit('leave-room');
             socket.off('join-error');
             socket.off('game-started');
             socket.off('room-users');
@@ -157,6 +158,7 @@ function HostRoom() {
             socket.off('round-results');
             clearInterval(interval);
             window.removeEventListener('beforeunload', handleBeforeUnload);
+            socket.disconnect();
         };
     }, [id, navigate]);
 

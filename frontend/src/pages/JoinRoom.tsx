@@ -21,12 +21,17 @@ function JoinRoom() {
             body: JSON.stringify({ roomCode }),
         });
 
-        const data = await response.json();
+        await response.json();
 
         if (!response.ok) {
             return;
         }
         
+        // reestablish connection if it was closed
+        if (!socket.connected) {
+            socket.connect();
+        }
+
         // connect user to room socket
         socket.emit('join-room', { roomCode, username: nameToUse });
         localStorage.setItem('username', nameToUse);
