@@ -102,7 +102,7 @@ export function setupRoomCreation(io: Server) {
     })
 
     socket.on('submit-word', ({ roomCode, word }) => {
-      if (!word || !roomCode)
+      if (!roomCode)
         return;
 
       acceptWord(roomCode, word, io);
