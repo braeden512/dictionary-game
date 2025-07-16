@@ -1,6 +1,12 @@
 import Base from '../components/Base';
+import { useEffect } from 'react';
+import { socket } from '../components/socket';
 
 function About() {
+  useEffect(() => {
+    // leave room if we get redirected here from a room
+    socket.emit('leave-room');
+  }, );
   return (
     <Base>
       <div className="flex flex-col items-center mt-8">

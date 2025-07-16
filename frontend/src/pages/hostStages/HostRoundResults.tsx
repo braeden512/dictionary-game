@@ -25,6 +25,9 @@ export default function HostRoundResults({ results, roomCode, round }: HostRound
   const handleNextRound = () => {
     socket.emit('next-round', {roomCode})
   }
+  const handleEndGame = () => {
+    socket.emit('leave-room');
+  }
 
   return (
     <div className="p-8 max-w-3xl mx-auto">
@@ -54,6 +57,12 @@ export default function HostRoundResults({ results, roomCode, round }: HostRound
           onClick={handleNextRound}
         >
           Start Next Round
+        </button>
+        <button
+          className="px-6 py-3 bg-neutral-600 text-white rounded-xl hover:bg-blue-700 transition"
+          onClick={handleEndGame}
+        >
+          End Game
         </button>
       </div>
     </div>

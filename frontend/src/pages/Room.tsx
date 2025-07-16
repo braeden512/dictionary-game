@@ -61,7 +61,16 @@ function Room() {
     const handleBeforeUnload = () => {
       localStorage.removeItem('username');
       localStorage.removeItem('userId');
-      socket.emit('leave-room');
+      socket.off('connect');
+      socket.off('join-error');
+      socket.off('game-started');
+      socket.off('assign-word-master');
+      socket.off('write-definitions');
+      socket.off('room-closed');
+      socket.off('all-definitions-submitted');
+      socket.off('reveal-definitions');
+      socket.off('round-results');
+      window.removeEventListener('beforeunload', handleBeforeUnload);
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -108,25 +117,14 @@ function Room() {
     });
 
     socket.on('room-closed', () => {
-      alert('Someone has left the game.');
+      alert('The game has ended.');
       socket.emit('leave-room');
       socket.removeAllListeners();
       socket.disconnect();
       navigate('/');
     });
 
-    return () => {
-      socket.off('connect');
-      socket.off('join-error');
-      socket.off('game-started');
-      socket.off('assign-word-master');
-      socket.off('write-definitions');
-      socket.off('room-closed');
-      socket.off('all-definitions-submitted');
-      socket.off('reveal-definitions');
-      socket.off('round-results');
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
+    return () => {};
   }, [roomCode, navigate, isWordMaster]);
 
   const handleWordSubmit = () => {

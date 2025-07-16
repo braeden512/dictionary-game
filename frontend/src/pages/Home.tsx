@@ -16,6 +16,9 @@ function Home() {
     }
 
     useEffect(() => {
+        // leave room if we get redirected here from a room
+        socket.emit('leave-room');
+
         // ensure the socket reconnects after host disconnects from prior room
         if (!socket.connected) {
             socket.connect();

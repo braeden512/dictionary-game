@@ -90,6 +90,20 @@ function HostRoom() {
         // force disconnect
         const handleBeforeUnload = () => {
             socket.emit('leave-room');
+            socket.off('join-error');
+            socket.off('game-started');
+            socket.off('room-users');
+            socket.off('assign-word-master');
+            socket.off('submit-word');
+            socket.off('not-enough-players');
+            socket.off('write-definitions');
+            socket.off('reveal-definitions');
+            socket.off('vote-submitted');
+            socket.off('round-results');
+            clearInterval(interval);
+            navigate('/');
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+            socket.disconnect();
         };
         window.addEventListener('beforeunload', handleBeforeUnload);
 
@@ -152,22 +166,7 @@ function HostRoom() {
             navigate('/');
         });
 
-        return () => {
-            socket.emit('leave-room');
-            socket.off('join-error');
-            socket.off('game-started');
-            socket.off('room-users');
-            socket.off('assign-word-master');
-            socket.off('submit-word');
-            socket.off('not-enough-players');
-            socket.off('write-definitions');
-            socket.off('reveal-definitions');
-            socket.off('vote-submitted');
-            socket.off('round-results');
-            clearInterval(interval);
-            window.removeEventListener('beforeunload', handleBeforeUnload);
-            socket.disconnect();
-        };
+        return () => {};
     }, [id, navigate]);
 
     const handleCopy = () => {
