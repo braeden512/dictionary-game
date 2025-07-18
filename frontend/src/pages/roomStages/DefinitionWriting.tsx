@@ -38,7 +38,7 @@ const DefinitionWriting = ({ currentWord, onSubmit, isWordMaster }: Props) => {
           <h2 className="text-xl font-semibold text-blue-600 dark:text-blue-400 mb-2">
             Write your definition for:
           </h2>
-          <p className="text-4xl font-bold mb-4 text-black dark:text-white">
+          <p className="text-4xl font-bold mb-4 text-black dark:text-white break-words break-all">
             '{currentWord}'
           </p>
           <textarea
@@ -50,7 +50,12 @@ const DefinitionWriting = ({ currentWord, onSubmit, isWordMaster }: Props) => {
             onChange={(e) => setDefinition(e.target.value)}
           ></textarea>
           <button
-            className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+            disabled={!definition.trim()}
+            className={`w-full mt-2 text-white text-lg font-semibold py-3 rounded-lg shadow-sm transition
+              ${!definition.trim()
+                ? 'bg-blue-900 cursor-not-allowed'
+                : 'bg-blue-600 hover:bg-blue-700'}
+            `}
             onClick={handleSubmit}
           >
             Submit Definition

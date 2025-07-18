@@ -1,6 +1,6 @@
 // components/hostRoom/LobbyStage.tsx
 
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Lightbulb } from 'lucide-react';
 import colors from '../../data/colors.json';
 
 interface User {
@@ -32,7 +32,10 @@ export default function LobbyStage({
           Share this room code with others:
         </p>
         <div className="relative">
-          <div className="text-5xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl dark:bg-[#14181e]">
+          <div 
+            className="text-5xl font-extrabold tracking-widest text-blue-600 bg-blue-100 px-6 py-4 rounded-xl dark:bg-[#14181e]"
+            style={{ textShadow: '2px 2px 2px rgba(0, 61, 182, 0.5)' }}
+          >
             {roomCode}
           </div>
           <button
@@ -62,9 +65,9 @@ export default function LobbyStage({
 
       <p
         key={currentTip}
-        className="text-lg text-gray-600 m-4 dark:text-white transition-opacity duration-700 ease-in-out opacity-100"
+        className="flex items-center gap-1 text-lg text-gray-600 m-4 dark:text-white transition-opacity duration-700 ease-in-out opacity-100"
       >
-        💡 Tip: {currentTip}
+        <Lightbulb color="#ffc800"/>Tip: {currentTip}
       </p>
 
       {userList.length > 0 && (

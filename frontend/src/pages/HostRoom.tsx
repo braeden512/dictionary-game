@@ -159,7 +159,7 @@ function HostRoom() {
         });
 
         socket.on('room-closed', () => {
-            alert('Someone has left the game.');
+            alert('The game has ended.');
             socket.emit('leave-room');
             socket.removeAllListeners();
             socket.disconnect();
