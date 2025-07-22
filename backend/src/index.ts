@@ -8,26 +8,26 @@ import { setupRoomCodeEndpoint } from './routes/get_room_code';
 import { setupRoomValidationEndpoint } from './routes/validate_room';
 import healthCheckRoute from './routes/health_check';
 
-// clean up expired rooms every 10 minutes
-setInterval(async () => {
-    await pool.query('DELETE FROM rooms WHERE expires_at < NOW()');
-    console.log('Expired rooms cleaned up');
-}, 10 * 60 * 1000);
-
-
 const app = express();
-app.use(express.json());
-const server = http.createServer(app);
-app.use(healthCheckRoute);
 
 app.use(cors({
-  origin: 'https://dictionary-game-omega.vercel.app/',
+  origin: 'https://dictionary-game-omega.vercel.app',
   methods: ['GET', 'POST'],
   credentials: true,
 }));
+
+app.use(express.json());
+app.use(healthCheckRoute);
+
+app.get('/', (_req, res) => {
+  res.send('Server is running!');
+});
+
+const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
-    origin: 'https://dictionary-game-omega.vercel.app/',
+    origin: 'https://dictionary-game-omega.vercel.app',
     methods: ['GET', 'POST'],
     credentials: true,
   },
@@ -37,7 +37,13 @@ setupRoomCodeEndpoint(app);
 setupRoomValidationEndpoint(app);
 setupRoomCreation(io);
 
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
 });
+
+// periodic room cleanup
+setInterval(async () => {
+  await pool.query('DELETE FROM rooms WHERE expires_at < NOW()');
+  console.log('Expired rooms cleaned up');
+}, 10 * 60 * 1000);
