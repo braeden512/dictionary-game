@@ -6,6 +6,7 @@ import pool from './db';
 import { setupRoomCreation } from './room_creation';
 import { setupRoomCodeEndpoint } from './routes/get_room_code';
 import { setupRoomValidationEndpoint } from './routes/validate_room';
+import healthCheckRoute from './routes/health_check';
 
 // clean up expired rooms every 10 minutes
 setInterval(async () => {
@@ -17,6 +18,7 @@ setInterval(async () => {
 const app = express();
 app.use(express.json());
 const server = http.createServer(app);
+app.use(healthCheckRoute);
 
 app.use(cors({
   origin: 'https://dictionary-game-omega.vercel.app/',
