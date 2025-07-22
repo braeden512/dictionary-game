@@ -19,13 +19,13 @@ app.use(express.json());
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://dictionary-game-omega.vercel.app/',
   methods: ['GET', 'POST'],
   credentials: true,
 }));
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'https://dictionary-game-omega.vercel.app/',
     methods: ['GET', 'POST'],
     credentials: true,
   },
