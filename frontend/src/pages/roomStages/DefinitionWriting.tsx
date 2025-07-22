@@ -1,15 +1,22 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WaitingForDefinitions from './WaitingForDefinitions';
 
 type Props = {
   currentWord: string;
   onSubmit: (definition: string) => void;
   isWordMaster: boolean;
+  prefill?: string | null;
 };
 
-const DefinitionWriting = ({ currentWord, onSubmit, isWordMaster }: Props) => {
-  const [definition, setDefinition] = useState('');
+const DefinitionWriting = ({ currentWord, onSubmit, isWordMaster, prefill }: Props) => {
+  const [definition, setDefinition] = useState(prefill || '');
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (isWordMaster && prefill) {
+      setDefinition(prefill);
+    }
+  }, [isWordMaster, prefill]);
 
   const handleSubmit = () => {
     if (definition.trim() === '') return;

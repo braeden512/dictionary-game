@@ -36,6 +36,10 @@ function Room() {
   const [hasVoted, setHasVoted] = useState(false);
   const [wordSubmitted, setWordSubmitted] = useState(false);
   const [roundResults, setRoundResults] = useState<RoundResultsProps | null>(null);
+  const [suggestedWords, setSuggestedWords] = useState<string[]>([]);
+  const [suggestedDefinitions, setSuggestedDefinitions] = useState<Record<string, string>>({});
+  const [prefilledDefinition, setPrefilledDefinition] = useState<string | null>(null);
+
 
 
   useEffect(() => {
@@ -70,6 +74,7 @@ function Room() {
       socket.off('all-definitions-submitted');
       socket.off('reveal-definitions');
       socket.off('round-results');
+      socket.off('definition-result');
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
@@ -90,9 +95,29 @@ function Room() {
       setRoundResults(null);
     });
 
+    socket.on('word-suggestions', ({ words, definitions }) => {
+      setSuggestedWords(words);
+      setSuggestedDefinitions(definitions);
+    });
+
+    if (isWordMaster) {
+      socket.emit('request-word-suggestions', { roomCode });
+    }
+
+    socket.on('definition-result', ({ word, definition }) => {
+      if (word === currentWord && isWordMaster && definition) {
+        setPrefilledDefinition(definition);
+      }
+    });
+
     socket.on('write-definitions', ({ word }) => {
       setCurrentWord(word);
       setWritingDefinitions(true);
+      setPrefilledDefinition(null); // reset while waiting
+      if (isWordMaster) {
+        // only the word master gets the real definition
+        socket.emit('request-definition', { word });
+      }
     });
 
     socket.on('reveal-definitions', ({ definitions }) => {
@@ -125,7 +150,7 @@ function Room() {
     });
 
     return () => {};
-  }, [roomCode, navigate, isWordMaster]);
+  }, [roomCode, navigate, isWordMaster, currentWord]);
 
   const handleWordSubmit = () => {
     socket.emit('submit-word', { roomCode, word });
@@ -145,7 +170,8 @@ function Room() {
 
   if (!gameStarted) {
     content = <WaitingForGameStart />;
-  } else if (roundResults) {
+  } 
+  else if (roundResults) {
     content = (
       <RoundResults 
         correctIndex={roundResults.correctIndex} 
@@ -154,17 +180,33 @@ function Room() {
         isWordMaster={isWordMaster}
       />
     );
-  } else if (isWordMaster && !wordSubmitted) {
-    content = <WordSubmission word={word} setWord={setWord} onSubmit={handleWordSubmit} />;
-  } else if (isWordMaster && isVotingStage) {
+  } 
+  else if (isWordMaster && !wordSubmitted) {
+    content = <WordSubmission 
+      word={word} 
+      setWord={setWord} 
+      onSubmit={handleWordSubmit}
+      suggestions={suggestedWords}
+      suggestionDefinitions={suggestedDefinitions}
+     />;
+  } 
+  else if (isWordMaster && isVotingStage) {
     content = <WaitingForVotes />;
-  } else if (writingDefinitions) {
-    content = <DefinitionWriting currentWord={currentWord} onSubmit={handleDefinitionSubmit} isWordMaster={isWordMaster} />;
-  } else if (isVotingStage) {
+  } 
+  else if (writingDefinitions) {
+    content = <DefinitionWriting
+      currentWord={currentWord}
+      onSubmit={handleDefinitionSubmit}
+      isWordMaster={isWordMaster}
+      prefill={prefilledDefinition}
+    />;
+  } 
+  else if (isVotingStage) {
     content = hasVoted
       ? <WaitingForVotes />
       : <VotingStage definitions={definitions} onVote={handleVote} currentWord={currentWord} />;
-  } else {
+  } 
+  else {
     content = <WaitingForWord />;
   }
 

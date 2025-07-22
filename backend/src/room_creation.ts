@@ -1,6 +1,9 @@
 import { Server, Socket } from 'socket.io';
 import pool from './db';
 import { initializeGame, nextRound, acceptWord, submitDefinition, submitVote, removeGame } from './game_flow';
+import { getWordSuggestions } from './helpers/wordSuggestions';
+import { getDefinitionSuggestions } from './helpers/definitionSuggestions';
+import { getDefinition } from './helpers/getDefinition';
 
 // function to generate a 6-digit code
 function generateRoomCode(): string {
@@ -100,6 +103,21 @@ export function setupRoomCreation(io: Server) {
     socket.on('next-round', ({ roomCode }) => {
       nextRound(roomCode, io);
     })
+
+    socket.on('request-word-suggestions', async ({ roomCode }) => {
+      const suggestions = await getWordSuggestions(3);
+      const definitions = await getDefinitionSuggestions(suggestions);
+
+      io.to(socket.id).emit('word-suggestions', {
+        words: suggestions,
+        definitions
+      });
+    });
+
+    socket.on('request-definition', async ({ word }) => {
+      const def = await getDefinition(word);
+      socket.emit('definition-result', { word, definition: def });
+    });
 
     socket.on('submit-word', ({ roomCode, word }) => {
       if (!roomCode)
