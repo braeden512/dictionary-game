@@ -3,6 +3,7 @@ import Base from '../components/Base';
 import { useState } from 'react';
 import { socket } from '../components/socket';
 import { useNavigate } from 'react-router-dom';
+import {backendUrl} from '../config';
 
 function JoinRoom() {
     const [roomCode, setRoomCode] = useState('');
@@ -15,7 +16,7 @@ function JoinRoom() {
         // if they haven't entered anything for username, they are anonymous
         const nameToUse = username || 'Anonymous';
         
-        const response = await fetch('http://localhost:5000/api/validate-room', {
+        const response = await fetch(`${backendUrl}/api/validate-room`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ roomCode }),

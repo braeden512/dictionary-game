@@ -10,6 +10,7 @@ import WordRevealedStage from './hostStages/WordRevealedStage';
 import DisplayDefinitions from './hostStages/DisplayDefinitions';
 import tips from '../data/tips.json';
 import HostRoundResults from './hostStages/HostRoundResults';
+import {backendUrl} from '../config';
 
 interface DefinitionResult {
   definition: string;
@@ -60,7 +61,7 @@ function HostRoom() {
 
         const fetchRoomCode = async () => {
             try {
-                const response = await fetch(`http://localhost:5000/api/rooms/${id}`);
+                const response = await fetch(`${backendUrl}/api/rooms/${id}`);
                 // throw an error if the response isn't recieved
                 if (!response.ok) {
                     throw new Error(`Room not found. Status: ${response.status}`);
