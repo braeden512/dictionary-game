@@ -2,37 +2,54 @@ import axios from 'axios';
 
 const apiKey = process.env.WORDNIK_API_KEY;
 
-interface WordnikSearchResult {
-  word: string;
-}
-interface WordnikSearchResponse {
-  searchResults: WordnikSearchResult[];
-}
 function shuffle<T>(array: T[]): T[] {
   return array.sort(() => 0.5 - Math.random());
 }
 
+function isValidWord(word: string, blacklist: Set<string>, disallowedInitials: Set<string>): boolean {
+  const lower = word.toLowerCase();
+  return (
+    /^[a-zA-Z]+$/.test(word) &&
+    !blacklist.has(lower) &&
+    !disallowedInitials.has(lower[0])
+  );
+}
+
 export async function getWordSuggestions(count = 3): Promise<string[]> {
-  try {
-    const response = await axios.get<WordnikSearchResponse>('https://api.wordnik.com/v4/words.json/search/*', {
-      params: {
-        minCorpusCount: 1,
-        maxCorpusCount: 500,
-        hasDictionaryDef: true,
-        minLength: 8,
-        maxLength: 16,
-        caseSensitive: false,
-        limit: 100,
-        api_key: apiKey,
-      },
-    });
+  const blacklist = new Set(['anticipation', 'apparition', 'education', 'reaction']);
+  const usedInitials = new Set<string>();
+  const suggestions: Set<string> = new Set();
 
-    const words: string[] = response.data.searchResults.map((result) => result.word);
+  let attempts = 0;
+  const maxAttempts = 50;
 
-    return shuffle(words).slice(0, count);
+  while (suggestions.size < count && attempts < maxAttempts) {
+    attempts++;
+
+    try {
+      const res = await axios.get('https://api.wordnik.com/v4/words.json/randomWord', {
+        params: {
+          hasDictionaryDef: true,
+          minCorpusCount: 1,
+          maxCorpusCount: 300,
+          minLength: 8,
+          maxLength: 16,
+          api_key: apiKey,
+        },
+      });
+
+      const word: string = res.data.word;
+
+      if (
+        isValidWord(word, blacklist, usedInitials)
+      ) {
+        suggestions.add(word);
+        usedInitials.add(word[0].toLowerCase());
+      }
+    } catch (err) {
+      console.warn('Failed to fetch a word:', err);
+    }
   }
-  catch (err) {
-      console.error('Failed to fetch obscure words from Wordnik:', err);
-      return ['obfuscate', 'quixotic', 'grandiloquent'];
-  }
+
+  return Array.from(suggestions);
 }
