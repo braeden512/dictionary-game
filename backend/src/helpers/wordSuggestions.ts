@@ -1,24 +1,23 @@
 import axios from 'axios';
 
+const apiKey = process.env.WORDNIK_API_KEY;
+
 export async function getWordSuggestions(count = 3): Promise<string[]> {
   try {
-    const response = await axios.get('https://api.datamuse.com/words', {
+    const response = await axios.get('https://api.wordnik.com/v4/words.json/randomWords', {
       params: {
-        max: 100,          // get up to 30 words to sample from
-        sp: '????????*',   // words with at least 7 characters
-        topics: 'philosophy,science,esoteric,obscure,linguistics' // optional: make words more academic
+        hasDictionaryDef: true,
+        minLength: 8,
+        maxLength: 16,
+        limit: count,
+        api_key: apiKey,
       }
     });
 
-    const words: string[] = response.data
-      .map((entry: any) => entry.word)
-      .filter((word: string) => /^[a-zA-Z]+$/.test(word)); // no symbols/numbers
-
-    // Shuffle and return a few
-    const shuffled = words.sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
+    const words: string[] = response.data.map((entry: any) => entry.word);
+    return words;
   } catch (err) {
-    console.error('Failed to fetch suggestions from Datamuse:', err);
+    console.error('Failed to fetch random words from Wordnik:', err);
     return ['obfuscate', 'quixotic', 'grandiloquent']; // fallback
   }
 }
