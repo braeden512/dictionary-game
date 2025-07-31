@@ -10,9 +10,19 @@ import healthCheckRoute from './routes/health_check';
 
 const app = express();
 
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://dictionary-game-omega.vercel.app',
+];
+
 app.use(cors({
-  origin: 'https://dictionary-game-omega.vercel.app',
-  methods: ['GET', 'POST'],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Origin ${origin} not allowed by CORS`));
+    }
+  },
   credentials: true,
 }));
 
@@ -27,7 +37,13 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'https://dictionary-game-omega.vercel.app',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`Origin ${origin} not allowed by CORS`));
+      }
+    },
     methods: ['GET', 'POST'],
     credentials: true,
   },

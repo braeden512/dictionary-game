@@ -124,7 +124,7 @@ export function setupRoomCreation(io: Server) {
         return;
 
       acceptWord(roomCode, word, io);
-    })
+    });
 
     socket.on('submit-definition', ({ roomCode, definition }) => {
       submitDefinition(roomCode, socket.id, definition, io);
