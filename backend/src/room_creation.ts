@@ -1,7 +1,7 @@
 import { Server, Socket } from 'socket.io';
 import pool from './db';
 import { initializeGame, nextRound, acceptWord, submitDefinition, submitVote, removeGame } from './game_flow';
-import { getObscureWords } from './helpers/wordSuggestions';
+import { getWordSuggestions } from './helpers/wordSuggestions';
 import { getDefinitionSuggestions } from './helpers/definitionSuggestions';
 import { getDefinition } from './helpers/getDefinition';
 
@@ -105,7 +105,7 @@ export function setupRoomCreation(io: Server) {
     })
 
     socket.on('request-word-suggestions', async ({ roomCode }) => {
-      const suggestions = await getObscureWords(3);
+      const suggestions = await getWordSuggestions(3);
       const definitions = await getDefinitionSuggestions(suggestions);
 
       io.to(socket.id).emit('word-suggestions', {
