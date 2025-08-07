@@ -16,7 +16,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "postbuild": "copyfiles -u 1 src/data/words.json dist/data && echo 'Copied words.json!' && ls -R dist",
+    "postbuild": "copyfiles src/data/words.json dist && echo 'Copied words.json!'",
     "start": "node dist/index.js",
     "dev": "nodemon --watch src --ext ts --exec ts-node src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
