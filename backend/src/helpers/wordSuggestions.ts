@@ -5,7 +5,7 @@ let wordList: string[] = [];
 
 function loadWords() {
   if (wordList.length === 0) {
-    const filePath = path.join(__dirname, '..', 'words.json');
+    const filePath = path.join(__dirname, '..', 'data', 'words.json');
     const data = fs.readFileSync(filePath, 'utf-8');
     wordList = JSON.parse(data);
   }
