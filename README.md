@@ -32,5 +32,3 @@ Hosting: Vercel (frontend) + Render (backend) + Supabase (db)
 <img width="1918" height="908" alt="image" src="https://github.com/user-attachments/assets/b03fdec5-7b9b-4413-a2cf-1dc0a53ff04c" />
 <img width="1917" height="906" alt="image" src="https://github.com/user-attachments/assets/968ee59f-492c-4e30-9e91-2c4b633a6c9b" />
 <img width="1918" height="908" alt="image" src="https://github.com/user-attachments/assets/b85ccd6f-90a7-4f23-a3a7-6a7f1b7c2278" />
-<img width="1919" height="906" alt="image" src="https://github.com/user-attachments/assets/067db214-7f25-43f7-bf0a-5a98ae552660" />
-
