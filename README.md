@@ -25,12 +25,12 @@ Hosting: Vercel (frontend) + Render (backend) + Supabase (db)
 ## 📸 Screenshots
 <img width="1915" height="905" alt="image" src="https://github.com/user-attachments/assets/13514bbc-831f-4181-9239-38b8ad2a4f35" />
 <img width="1918" height="911" alt="image" src="https://github.com/user-attachments/assets/4bf22225-0f0b-4a81-8f63-76227f4c241a" />
+<img width="374" height="822" alt="image" src="https://github.com/user-attachments/assets/2448d185-d89f-42a8-bbfb-12d761f4e6a2" />
 <img width="373" height="817" alt="image" src="https://github.com/user-attachments/assets/37f63404-7bad-4899-b753-0e1c89121f6b" />
-<img width="1918" height="908" alt="image" src="https://github.com/user-attachments/assets/b03fdec5-7b9b-4413-a2cf-1dc0a53ff04c" />
 <img width="370" height="822" alt="image" src="https://github.com/user-attachments/assets/59183491-6771-4020-a999-34e809c9aa12" />
 <img width="376" height="821" alt="image" src="https://github.com/user-attachments/assets/7f29226a-e5f8-4e23-b3ba-b79071d48f62" />
+<img width="1918" height="908" alt="image" src="https://github.com/user-attachments/assets/b03fdec5-7b9b-4413-a2cf-1dc0a53ff04c" />
 <img width="1917" height="906" alt="image" src="https://github.com/user-attachments/assets/968ee59f-492c-4e30-9e91-2c4b633a6c9b" />
 <img width="1918" height="908" alt="image" src="https://github.com/user-attachments/assets/b85ccd6f-90a7-4f23-a3a7-6a7f1b7c2278" />
-<img width="374" height="822" alt="image" src="https://github.com/user-attachments/assets/2448d185-d89f-42a8-bbfb-12d761f4e6a2" />
 <img width="1919" height="906" alt="image" src="https://github.com/user-attachments/assets/067db214-7f25-43f7-bf0a-5a98ae552660" />
 
