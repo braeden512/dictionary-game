@@ -2,7 +2,7 @@
 
 A fun multiplayer word-guessing game, built with React, Node.js, Socket.io, TailwindCSS, and PostgreSQL
 
-# 🎮 How to Play
+## 🎮 How to Play
 1. Host starts a game and gets a room code
 2. Players join using their phones with that code
 3. One player is chosen as the Word Master
@@ -10,7 +10,7 @@ A fun multiplayer word-guessing game, built with React, Node.js, Socket.io, Tail
 5. Players vote on the definition they think is real
 6. Finally, the results are shown and you move on to the next round
 
-# 🛠️ Tech Stack
+## 🛠️ Tech Stack
 
 Frontend: React + TypeScript + TailwindCSS
 
@@ -22,7 +22,7 @@ APIs: Wordnik (definitions)
 
 Hosting: Vercel (frontend) + Render (backend) + Supabase (db)
 
-# 📸 Screenshots
+## 📸 Screenshots
 <img width="1915" height="905" alt="image" src="https://github.com/user-attachments/assets/13514bbc-831f-4181-9239-38b8ad2a4f35" />
 <img width="1918" height="911" alt="image" src="https://github.com/user-attachments/assets/4bf22225-0f0b-4a81-8f63-76227f4c241a" />
 <img width="373" height="817" alt="image" src="https://github.com/user-attachments/assets/37f63404-7bad-4899-b753-0e1c89121f6b" />
