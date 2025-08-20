@@ -1,6 +1,6 @@
 # Dictionary Game
 
-## https://dictionary-game-omega.vercel.app/
+## Live Demo: https://dictionary-game-omega.vercel.app/
 
 A fun multiplayer word-guessing game, built with React, Node.js, Socket.io, TailwindCSS, and PostgreSQL
 
